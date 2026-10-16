@@ -1,0 +1,10 @@
+import type { Database } from './database.types';
+export type { Json } from './database.types';
+export type Role = 'buyer' | 'supplier' | 'admin';
+export type Profile = Database['public']['Tables']['profiles']['Row'];
+export type Business = Database['public']['Tables']['businesses']['Row'];
+export type Category = Database['public']['Tables']['categories']['Row'];
+export type Product = Database['public']['Tables']['products']['Row'];
+export type ProductImage = Database['public']['Tables']['product_images']['Row'];
+export type PriceTier = Database['public']['Tables']['product_price_tiers']['Row'];
+export type Verification = Database['public']['Tables']['supplier_verifications']['Row'];

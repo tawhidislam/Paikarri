@@ -1,0 +1,705 @@
+import { useT } from '@/lib/i18n';
+import { useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import type { z } from 'zod';
+import { Plus, Trash2, Upload, ShieldCheck, ExternalLink } from 'lucide-react';
+import { db } from '@/lib/supabase';
+import { useAuth } from '@/lib/auth';
+import { businessSchema, productSchema } from '@/lib/validation';
+import { locations } from '@/lib/locations';
+import { categories, signedImage } from '@/lib/catalog';
+import { money, validateUpload } from '@/lib/utils';
+import type { Business, Product, PriceTier, Json } from '@/lib/models';
+import { Button } from '@/components/ui/button';
+import { Field, Notice, State, SectionTitle, ConfirmButton, useTitle } from '@/components/shared';
+import { ProductImage } from '@/components/product-card';
+export function useBusiness() {
+  const { session } = useAuth();
+  return useQuery({
+    queryKey: ['own-business', session!.user.id],
+    queryFn: async () => {
+      const { data, error } = await db()
+        .from('businesses')
+        .select('*')
+        .eq('owner_id', session!.user.id)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+export function BusinessPage() {
+  const tr = useT();
+  const { session, role } = useAuth();
+  const cache = useQueryClient();
+  const own = useBusiness();
+  useTitle('Your business');
+  const register = useMutation({
+    mutationFn: async () => {
+      const { error } = await db().rpc('register_supplier');
+      if (error) throw error;
+    },
+    onSuccess: () => cache.invalidateQueries({ queryKey: ['role', session!.user.id] }),
+  });
+  return (
+    <>
+      <SectionTitle
+        title={tr(role === 'buyer' ? 'Bring your business to Paikari.' : 'Your business profile')}
+        description={tr(
+          role === 'buyer'
+            ? 'Create a supplier account and connect with wholesale buyers across Bangladesh.'
+            : 'Tell buyers who you are and what makes your business different.',
+        )}
+      />
+      {role === 'buyer' ? (
+        <div className="panel onboarding-panel">
+          <ShieldCheck size={40} />
+          <h2>{tr('Ready to reach more buyers?')}</h2>
+          <p>
+            {tr(
+              'This switches your account from buyer to supplier. You can list products and respond to inquiries. Use a separate buyer account if you also need to source products.',
+            )}
+          </p>
+          <Notice error={register.error} />
+          <Button disabled={register.isPending} onClick={() => register.mutate()}>
+            {tr('Become a supplier')}
+          </Button>
+        </div>
+      ) : (
+        <>
+          <Notice error={own.error} />
+          {own.isLoading ? (
+            <State title={tr('Loading business…')} />
+          ) : (
+            <BusinessForm key={own.data?.updated_at ?? 'new'} business={own.data ?? null} />
+          )}
+        </>
+      )}
+    </>
+  );
+}
+function BusinessForm({ business }: { business: Business | null }) {
+  const tr = useT();
+  const { session } = useAuth();
+  const cache = useQueryClient();
+  const form = useForm<z.infer<typeof businessSchema>>({
+    resolver: zodResolver(businessSchema),
+    defaultValues: business ?? {
+      name: '',
+      name_bn: '',
+      description: '',
+      division: 'Dhaka',
+      district: 'Dhaka',
+      address: '',
+      contact_phone: '',
+      website: '',
+    },
+  });
+  const division = form.watch('division');
+  const save = useMutation({
+    mutationFn: async (v: z.infer<typeof businessSchema>) => {
+      const response = business
+        ? await db()
+            .from('businesses')
+            .update(v)
+            .eq('id', business.id)
+            .eq('owner_id', session!.user.id)
+        : await db()
+            .from('businesses')
+            .insert({ ...v, owner_id: session!.user.id });
+      if (response.error) throw response.error;
+    },
+    onSuccess: () => cache.invalidateQueries({ queryKey: ['own-business'] }),
+  });
+  return (
+    <form className="panel form-stack" onSubmit={form.handleSubmit((v) => save.mutate(v))}>
+      {business?.verified && (
+        <span className="verified-label">
+          <ShieldCheck size={16} />
+          {tr('VERIFIED BUSINESS')}
+        </span>
+      )}
+      <div className="form-grid">
+        <Field label={tr('Business name (English)')} error={form.formState.errors.name?.message}>
+          <input {...form.register('name')} />
+        </Field>
+        <Field
+          label={tr('Business name (\u09AC\u09BE\u0982\u09B2\u09BE)')}
+          error={form.formState.errors.name_bn?.message}
+        >
+          <input {...form.register('name_bn')} />
+        </Field>
+      </div>
+      <Field label={tr('About your business')} error={form.formState.errors.description?.message}>
+        <textarea rows={5} {...form.register('description')} />
+      </Field>
+      <div className="form-grid">
+        <Field label={tr('Division')}>
+          <select {...form.register('division', { onChange: () => form.setValue('district', '') })}>
+            {Object.keys(locations).map((d) => (
+              <option key={d}>{d}</option>
+            ))}
+          </select>
+        </Field>
+        <Field label={tr('District')} error={form.formState.errors.district?.message}>
+          <select {...form.register('district')}>
+            <option value="">{tr('Choose district')}</option>
+            {locations[division]?.map((d) => (
+              <option key={d}>{d}</option>
+            ))}
+          </select>
+        </Field>
+        <Field
+          label={tr('Business mobile number (public)')}
+          error={form.formState.errors.contact_phone?.message}
+        >
+          <input type="tel" placeholder={'+8801712345678'} {...form.register('contact_phone')} />
+        </Field>
+        <Field
+          label={tr('Website (optional HTTPS)')}
+          error={form.formState.errors.website?.message}
+        >
+          <input type="url" {...form.register('website')} />
+        </Field>
+      </div>
+      <Field label={tr('Public business address')}>
+        <textarea {...form.register('address')} />
+      </Field>
+      <Notice
+        error={save.error}
+        success={save.isSuccess ? tr('Business profile saved.') : undefined}
+      />
+      <Button disabled={save.isPending}>{tr('Save business profile')}</Button>
+    </form>
+  );
+}
+export function SupplierProducts() {
+  const tr = useT();
+  const own = useBusiness();
+  const cache = useQueryClient();
+  useTitle('Manage products');
+  const products = useQuery({
+    queryKey: ['own-products', own.data?.id],
+    enabled: !!own.data,
+    queryFn: async () => {
+      const { data, error } = await db()
+        .from('products')
+        .select('*')
+        .eq('business_id', own.data!.id)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      const notes = await db().from('product_moderation_notes').select('*');
+      if (notes.error) throw notes.error;
+      return data.map((p) => ({
+        ...p,
+        moderation_note: notes.data.find((n) => n.product_id === p.id)?.note ?? '',
+      }));
+    },
+  });
+  const archive = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await db().from('products').update({ status: 'archived' }).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => cache.invalidateQueries({ queryKey: ['own-products'] }),
+  });
+  return (
+    <>
+      <SectionTitle
+        title={tr('Your wholesale catalog')}
+        description={tr('Every new or edited listing is reviewed before it becomes public.')}
+        to="/dashboard/products/new"
+        label={tr('Add product')}
+      />
+      <Notice error={products.error ?? own.error ?? archive.error} />
+      {own.data === null ? (
+        <State
+          title={tr('Create your business profile first')}
+          action={<Link to="/dashboard/business">{tr('Set up business ↗')}</Link>}
+        />
+      ) : products.isLoading ? (
+        <State title={tr('Loading products…')} />
+      ) : products.data?.length ? (
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>{tr('Products')}</th>
+                <th>{tr('Price / MOQ')}</th>
+                <th>{tr('Status')}</th>
+                <th>{tr('Actions')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {products.data.map((p) => (
+                <tr key={p.id}>
+                  <td>
+                    <strong>{p.name}</strong>
+                    <small>
+                      {p.stock} {p.unit}
+                    </small>
+                    {p.moderation_note && (
+                      <small className="field-error">{p.moderation_note}</small>
+                    )}
+                  </td>
+                  <td>
+                    {money(p.price)}
+                    <small>
+                      MOQ: {p.moq} {p.unit}
+                    </small>
+                  </td>
+                  <td>
+                    <span className={`status-badge ${p.status}`}>{tr(p.status)}</span>
+                  </td>
+                  <td>
+                    <div className="table-actions">
+                      <Button asChild size="sm" variant="outline">
+                        <Link to={`/dashboard/products/${p.id}`}>{tr('Edit')}</Link>
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        disabled={archive.isPending || p.status === 'archived'}
+                        onClick={() => archive.mutate(p.id)}
+                      >
+                        {tr('Archive')}
+                      </Button>
+                      <ConfirmButton
+                        onConfirm={async () => {
+                          const { error } = await db().from('products').delete().eq('id', p.id);
+                          if (error) throw error;
+                          await cache.invalidateQueries({ queryKey: ['own-products'] });
+                        }}
+                      >
+                        {tr('Delete')}
+                      </ConfirmButton>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <State
+          title={tr('Your next bestseller starts here.')}
+          action={
+            <Button asChild>
+              <Link to="/dashboard/products/new">
+                <Plus size={16} />
+                {tr('Add product')}
+              </Link>
+            </Button>
+          }
+        />
+      )}
+    </>
+  );
+}
+export function ProductEditor() {
+  const tr = useT();
+  const { id } = useParams();
+  const own = useBusiness();
+  useTitle(id ? 'Edit product' : 'Add product');
+  const record = useQuery({
+    queryKey: ['edit-product', id],
+    enabled: !!id && !!own.data,
+    queryFn: async () => {
+      const [p, t] = await Promise.all([
+        db().from('products').select('*').eq('id', id!).eq('business_id', own.data!.id).single(),
+        db().from('product_price_tiers').select('*').eq('product_id', id!).order('min_quantity'),
+      ]);
+      if (p.error || t.error) throw p.error ?? t.error;
+      return { product: p.data, tiers: t.data };
+    },
+  });
+  if (own.isLoading || (id && record.isLoading))
+    return <State title={tr('Loading editor\u2026')} />;
+  if (own.error || record.error) return <Notice error={own.error ?? record.error} />;
+  if (!own.data)
+    return (
+      <State
+        title={tr('Create your business profile first')}
+        action={<Link to="/dashboard/business">{tr('Set up business \u2197')}</Link>}
+      />
+    );
+  return (
+    <>
+      <SectionTitle
+        title={tr(id ? 'Edit your product' : 'Add a wholesale product')}
+        description={tr('Clear details and good photos help buyers find the right fit.')}
+      />
+      <ProductForm
+        key={id ?? 'new'}
+        product={record.data?.product}
+        tiers={record.data?.tiers ?? []}
+      />
+      {id && <ImageManager productId={id} />}
+    </>
+  );
+}
+function ProductForm({ product, tiers }: { product?: Product; tiers: PriceTier[] }) {
+  const tr = useT();
+  const navigate = useNavigate();
+  const cache = useQueryClient();
+  const [spec, setSpec] = useState(
+    Object.entries(product?.specifications ?? {})
+      .map(([k, v]) => `${k}: ${v}`)
+      .join('\n'),
+  );
+  const cats = useQuery({ queryKey: ['categories'], queryFn: categories });
+  const form = useForm<z.infer<typeof productSchema>>({
+    resolver: zodResolver(productSchema),
+    defaultValues: {
+      name: product?.name ?? '',
+      name_bn: product?.name_bn ?? '',
+      description: product?.description ?? '',
+      category_id: product?.category_id ?? '',
+      price: product?.price ?? 0,
+      moq: product?.moq ?? 1,
+      stock: product?.stock ?? 0,
+      unit: product?.unit ?? 'piece',
+      specifications: {},
+      tiers: tiers.map((t) => ({ min_quantity: t.min_quantity, price: t.price })),
+    },
+  });
+  const rows = form.watch('tiers');
+  const save = useMutation({
+    mutationFn: async (v: z.infer<typeof productSchema>) => {
+      const specifications: Record<string, string> = {};
+      for (const line of spec.split('\n').filter((x) => x.trim())) {
+        const i = line.indexOf(':');
+        if (i < 1) throw new Error('Use “Key: Value” for each specification.');
+        specifications[line.slice(0, i).trim()] = line.slice(i + 1).trim();
+      }
+      const { data, error } = await db().rpc('save_product', {
+        payload: { ...v, specifications, ...(product ? { id: product.id } : {}) } as Json,
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (id) => {
+      void cache.invalidateQueries({ queryKey: ['own-products'] });
+      void cache.invalidateQueries({ queryKey: ['edit-product'] });
+      navigate(`/dashboard/products/${id}`);
+    },
+  });
+  return (
+    <form className="panel form-stack" onSubmit={form.handleSubmit((v) => save.mutate(v))}>
+      <div className="form-grid">
+        <Field label={tr('Product name (English)')} error={form.formState.errors.name?.message}>
+          <input {...form.register('name')} />
+        </Field>
+        <Field
+          label={tr('Product name (\u09AC\u09BE\u0982\u09B2\u09BE)')}
+          error={form.formState.errors.name_bn?.message}
+        >
+          <input {...form.register('name_bn')} />
+        </Field>
+        <Field label={tr('Category')} error={form.formState.errors.category_id?.message}>
+          <select {...form.register('category_id')}>
+            <option value="">{tr('Choose a category')}</option>
+            {cats.data?.map((c) => (
+              <option value={c.id} key={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <Field label={tr('Unit')} error={form.formState.errors.unit?.message}>
+          <input placeholder={tr('piece, kg, carton\u2026')} {...form.register('unit')} />
+        </Field>
+        <Field
+          label={tr('Wholesale starting price (\u09F3)')}
+          error={form.formState.errors.price?.message}
+        >
+          <input
+            type="number"
+            step="0.01"
+            min="0.01"
+            {...form.register('price', { valueAsNumber: true })}
+          />
+        </Field>
+        <Field label={tr('Minimum order quantity')} error={form.formState.errors.moq?.message}>
+          <input type="number" min="1" {...form.register('moq', { valueAsNumber: true })} />
+        </Field>
+        <Field
+          label={tr('Available stock / supply capacity')}
+          error={form.formState.errors.stock?.message}
+        >
+          <input type="number" min="0" {...form.register('stock', { valueAsNumber: true })} />
+        </Field>
+      </div>
+      <Field label={tr('Product description')} error={form.formState.errors.description?.message}>
+        <textarea rows={6} {...form.register('description')} />
+      </Field>
+      <Field label={tr('Specifications (one Key: Value per line)')}>
+        <textarea
+          value={spec}
+          onChange={(e) => setSpec(e.target.value)}
+          placeholder={'Material: Cotton\nOrigin: Bangladesh'}
+        />
+      </Field>
+      <div className="tier-editor">
+        <h3>{tr('Quantity pricing')}</h3>
+        {rows.map((_, i) => (
+          <div className="tier-row" key={i}>
+            <Field
+              label={tr('From quantity')}
+              error={form.formState.errors.tiers?.[i]?.min_quantity?.message}
+            >
+              <input
+                type="number"
+                min="1"
+                {...form.register(`tiers.${i}.min_quantity`, { valueAsNumber: true })}
+              />
+            </Field>
+            <Field
+              label={tr('Price per unit (\u09F3)')}
+              error={form.formState.errors.tiers?.[i]?.price?.message}
+            >
+              <input
+                type="number"
+                min="0.01"
+                step="0.01"
+                {...form.register(`tiers.${i}.price`, { valueAsNumber: true })}
+              />
+            </Field>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label={tr('Remove price tier')}
+              onClick={() =>
+                form.setValue(
+                  'tiers',
+                  rows.filter((_, n) => n !== i),
+                )
+              }
+            >
+              <Trash2 size={17} />
+            </Button>
+          </div>
+        ))}
+        <p className="field-error">
+          {form.formState.errors.tiers?.root?.message ?? form.formState.errors.tiers?.message}
+        </p>
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          disabled={rows.length >= 20}
+          onClick={() => form.setValue('tiers', [...rows, { min_quantity: 1, price: 1 }])}
+        >
+          <Plus size={15} />
+          {tr('Add pricing tier')}
+        </Button>
+      </div>
+      <Notice
+        error={save.error ?? cats.error}
+        success={save.isSuccess ? tr('Product saved and submitted for review.') : undefined}
+      />
+      <p className="muted">
+        {tr(
+          product
+            ? 'Saving edits submits this listing for review again.'
+            : 'Save your product, then upload photos on the next screen.',
+        )}
+      </p>
+      <Button disabled={save.isPending}>{tr('Save & submit for review')}</Button>
+    </form>
+  );
+}
+function ImageManager({ productId }: { productId: string }) {
+  const tr = useT();
+  const { session } = useAuth();
+  const cache = useQueryClient();
+  const images = useQuery({
+    queryKey: ['own-images', productId],
+    queryFn: async () => {
+      const { data, error } = await db()
+        .from('product_images')
+        .select('*')
+        .eq('product_id', productId)
+        .order('position');
+      if (error) throw error;
+      return data;
+    },
+  });
+  const upload = useMutation({
+    mutationFn: async (file: File) => {
+      if ((images.data?.length ?? 0) >= 10) throw new Error('Use up to 10 product images.');
+      const ext = validateUpload(file, 'product-images');
+      const path = `${session!.user.id}/${productId}/${crypto.randomUUID()}.${ext}`;
+      const { error } = await db()
+        .storage.from('product-images')
+        .upload(path, file, { contentType: file.type, upsert: false });
+      if (error) throw error;
+      const res = await db()
+        .from('product_images')
+        .insert({ product_id: productId, path, position: images.data?.length ?? 0 });
+      if (res.error) {
+        await db().storage.from('product-images').remove([path]);
+        throw res.error;
+      }
+    },
+    onSuccess: () => cache.invalidateQueries({ queryKey: ['own-images', productId] }),
+  });
+  return (
+    <div className="panel image-manager">
+      <h3>{tr('Product images')}</h3>
+      <p>{tr('JPEG, PNG or WebP. Up to 5 MB each. New images submit the product for review.')}</p>
+      <Notice error={upload.error ?? images.error} />
+      <div className="upload-grid">
+        {images.data?.map((i) => (
+          <div key={i.id}>
+            <ProductImage path={i.path} alt="Product upload" />
+            <ConfirmButton
+              onConfirm={async () => {
+                const { error } = await db().from('product_images').delete().eq('id', i.id);
+                if (error) throw error;
+                const removed = await db().storage.from('product-images').remove([i.path]);
+                if (removed.error) throw removed.error;
+                await cache.invalidateQueries({ queryKey: ['own-images', productId] });
+              }}
+            >
+              {tr('Remove image')}
+            </ConfirmButton>
+          </div>
+        ))}
+      </div>
+      <label className="upload-input">
+        <Upload size={18} />
+        {tr(upload.isPending ? 'Uploading…' : 'Upload image')}
+        <input
+          disabled={upload.isPending}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          onChange={(e) => {
+            if (e.target.files?.[0]) upload.mutate(e.target.files[0]);
+            e.target.value = '';
+          }}
+        />
+      </label>
+    </div>
+  );
+}
+export function VerificationPage() {
+  const tr = useT();
+  const own = useBusiness();
+  const { session } = useAuth();
+  const cache = useQueryClient();
+  const [file, setFile] = useState<File>();
+  const [type, setType] = useState<'trade_license' | 'tax_certificate' | 'registration'>(
+    'trade_license',
+  );
+  useTitle('Business verification');
+  const requests = useQuery({
+    queryKey: ['own-verifications', own.data?.id],
+    enabled: !!own.data,
+    queryFn: async () => {
+      const { data, error } = await db()
+        .from('supplier_verifications')
+        .select('*')
+        .eq('business_id', own.data!.id)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+  const upload = useMutation({
+    mutationFn: async () => {
+      if (!file) throw new Error('Choose a business document.');
+      const ext = validateUpload(file, 'business-documents');
+      const path = `${session!.user.id}/${crypto.randomUUID()}.${ext}`;
+      const { error } = await db()
+        .storage.from('business-documents')
+        .upload(path, file, { contentType: file.type, upsert: false });
+      if (error) throw error;
+      const r = await db()
+        .from('supplier_verifications')
+        .insert({ business_id: own.data!.id, document_path: path, document_type: type });
+      if (r.error) throw r.error;
+    },
+    onSuccess: () => cache.invalidateQueries({ queryKey: ['own-verifications'] }),
+  });
+  const open = useMutation({
+    mutationFn: async (path: string) => {
+      const url = await signedImage(path, 'business-documents');
+      const preview = window.open(url, '_blank');
+      if (preview) preview.opener = null;
+      else window.location.assign(url);
+    },
+  });
+  if (own.isLoading) return <State title={tr('Loading business\u2026')} />;
+  return (
+    <>
+      <SectionTitle
+        title={tr('Build trust. Get verified.')}
+        description={tr(
+          'Your documents are private and accessible only to your account and authorized reviewers.',
+        )}
+      />
+      <Notice error={own.error ?? requests.error ?? open.error} />
+      {!own.data ? (
+        <State
+          title={tr('Create your business profile first')}
+          action={<Link to="/dashboard/business">{tr('Set up business ↗')}</Link>}
+        />
+      ) : (
+        <>
+          <form
+            className="panel form-stack"
+            onSubmit={(e) => {
+              e.preventDefault();
+              upload.mutate();
+            }}
+          >
+            <Field label={tr('Document type')}>
+              <select value={type} onChange={(e) => setType(e.target.value as typeof type)}>
+                <option value="trade_license">{tr('Trade license')}</option>
+                <option value="tax_certificate">{tr('Tax certificate')}</option>
+                <option value="registration">{tr('Business registration')}</option>
+              </select>
+            </Field>
+            <Field label={tr('Document (PDF, JPEG or PNG; up to 10 MB)')}>
+              <input
+                required
+                type="file"
+                accept="application/pdf,image/jpeg,image/png"
+                onChange={(e) => setFile(e.target.files?.[0])}
+              />
+            </Field>
+            <Notice
+              error={upload.error}
+              success={upload.isSuccess ? tr('Document submitted for review.') : undefined}
+            />
+            <Button disabled={upload.isPending}>{tr('Submit for verification')}</Button>
+          </form>
+          <h3 className="subheading">{tr('Submission history')}</h3>
+          {requests.data?.map((r) => (
+            <div className="panel verification-row" key={r.id}>
+              <div>
+                <strong>{tr(r.document_type.replaceAll('_', ' '))}</strong>
+                <span className={`status-badge ${r.status}`}>{tr(r.status)}</span>
+                <p>{r.review_note || tr('Awaiting review')}</p>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={open.isPending}
+                onClick={() => open.mutate(r.document_path)}
+              >
+                {tr('View document')}
+                <ExternalLink size={14} />
+              </Button>
+            </div>
+          ))}
+        </>
+      )}
+    </>
+  );
+}
