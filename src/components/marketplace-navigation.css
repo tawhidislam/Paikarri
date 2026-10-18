@@ -1,0 +1,285 @@
+/* Marketplace navigation uses readable type and touch targets at every viewport. */
+.site-footer .footer-grid h4 {
+  font-size: 14px;
+}
+.site-footer .footer-grid > div > p,
+.site-footer .footer-grid > div > a:not(.brand),
+.site-footer .footer-note > p,
+.site-footer .footer-note > a,
+.site-footer .footer-made,
+.site-footer .footer-bottom {
+  font-size: 12px;
+  line-height: 1.75;
+}
+.site-footer .footer-grid > div > a:not(.brand),
+.site-footer .footer-bottom a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+}
+.site-footer .footer-grid > div:not(:first-child) > a:not(.brand) {
+  display: flex;
+  width: fit-content;
+}
+.site-header .header-main {
+  gap: clamp(14px, 2.3vw, 34px);
+}
+.site-header .header-search {
+  height: 52px;
+  padding: 3px 3px 3px 14px;
+  min-width: 180px;
+}
+.site-header .header-search:focus-within {
+  outline: 2px solid #17483b;
+  outline-offset: 3px;
+}
+.site-header .header-search input {
+  font-size: 14px;
+  min-height: 44px;
+}
+.site-header .header-search button {
+  height: 44px;
+  min-width: 72px;
+  font-size: 13px;
+  padding-inline: 14px;
+}
+.site-header .header-actions {
+  gap: 12px;
+}
+.site-header .header-actions .h-9,
+.site-header .header-actions .signin,
+.site-header .language,
+.site-header .notification-link,
+.site-header .mobile-menu {
+  min-height: 44px;
+  min-width: 44px;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+}
+.site-header .header-actions .signin {
+  display: inline-flex;
+}
+.site-header .nav-row nav {
+  height: auto;
+  min-height: 54px;
+  gap: clamp(12px, 1.8vw, 28px);
+  font-size: 13px;
+}
+.site-header .nav-row nav > a,
+.site-header .nav-row nav > .supplier-access-paused {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+.site-header .category-picker {
+  position: relative;
+  flex-shrink: 0;
+}
+.site-header .category-nav {
+  min-height: 44px;
+  border: 0;
+  border-right: 1px solid var(--line);
+  background: transparent;
+  font-size: 13px;
+  padding-left: 0;
+}
+.site-header .category-nav[aria-expanded='true'] > svg:last-child {
+  transform: rotate(180deg);
+}
+.site-header .category-popover {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 5px);
+  left: 0;
+  width: min(420px, calc(100vw - 40px));
+  max-height: min(65vh, 520px);
+  overflow: auto;
+  background: #fff;
+  border: 1px solid #dfe6dc;
+  border-radius: 10px;
+  box-shadow: 0 12px 35px #17483b1f;
+  padding: 10px;
+}
+.site-header .category-popover-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-left: 10px;
+  gap: 12px;
+  color: #17483b;
+}
+.site-header .category-popover-heading button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  border-radius: 6px;
+}
+.site-header .category-popover ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.site-header .category-popover li > a,
+.site-header .category-popover > a {
+  min-height: 44px;
+  border-radius: 6px;
+  padding: 10px;
+  line-height: 1.5;
+}
+.site-header .category-popover li > a:hover,
+.site-header .category-popover > a:hover {
+  color: #17483b;
+  background: #f1f6ed;
+}
+.site-header .category-popover li > a {
+  font-weight: 650;
+}
+.site-header .category-popover li > ul {
+  padding-left: 14px;
+  border-left: 1px solid #e5ebdf;
+  margin-left: 10px;
+}
+.site-header .category-popover li > ul a {
+  font-weight: 400;
+}
+.site-header .category-picker-status {
+  padding: 12px 10px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #53674e;
+}
+.site-header .category-popover > a:last-child {
+  border-top: 1px solid #e5ebdf;
+  margin-top: 6px;
+  color: #17483b;
+  font-weight: 650;
+}
+.site-header .mobile-auth-links {
+  display: none;
+}
+.supplier-access-paused {
+  color: #67725f;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.site-footer .footer-grid > div > .supplier-access-paused {
+  display: block;
+  margin-bottom: 12px;
+}
+@media (max-width: 1100px) {
+  .site-header .header-main {
+    gap: 14px;
+  }
+  .site-header .header-actions {
+    gap: 8px;
+  }
+  .site-header .header-search {
+    gap: 8px;
+  }
+  .site-header .nav-row nav {
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+}
+@media (max-width: 800px) {
+  .site-header .header-main {
+    height: 132px;
+    padding-bottom: 65px;
+    padding-top: 6px;
+    gap: 0;
+  }
+  .site-header .brand {
+    font-size: 26px;
+  }
+  .site-header .header-actions {
+    gap: 5px;
+  }
+  .site-header .header-actions .signin {
+    display: none;
+  }
+  .site-header .header-actions .h-9 {
+    display: none;
+  }
+  .site-header .mobile-menu {
+    margin-left: 5px;
+    padding: 0;
+    background: transparent;
+    border: 0;
+  }
+  .site-header .header-search {
+    bottom: 10px;
+    height: 52px;
+    gap: 10px;
+  }
+  .site-header .header-search input {
+    font-size: 16px;
+  }
+  .site-header .header-search button {
+    font-size: 13px;
+  }
+  .site-header .nav-row nav {
+    gap: 2px;
+    align-items: stretch;
+    padding-block: 10px;
+  }
+  .site-header .nav-row nav > a,
+  .site-header .nav-row nav > .supplier-access-paused,
+  .site-header .category-nav {
+    padding: 10px 4px;
+    width: 100%;
+    justify-content: flex-start;
+    font-size: 14px;
+  }
+  .site-header .category-nav {
+    border-right: 0;
+  }
+  .site-header .category-nav > svg:last-child {
+    margin-left: auto;
+  }
+  .site-header .category-popover {
+    width: 100%;
+    position: relative;
+    top: auto;
+    margin-bottom: 8px;
+    max-height: 50vh;
+    box-shadow: none;
+  }
+  .site-header .mobile-auth-links {
+    display: flex;
+    border-top: 1px solid var(--line);
+    padding-top: 8px;
+    margin-top: 6px;
+    gap: 16px;
+  }
+  .site-header .mobile-auth-links a {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    padding-inline: 4px;
+    font-weight: 650;
+  }
+}
+@media (max-width: 380px) {
+  .site-header .brand {
+    font-size: 23px;
+  }
+  .site-header .brand-icon {
+    width: 25px;
+    height: 25px;
+    margin-right: 6px;
+  }
+  .site-header .header-actions .h-9 {
+    padding-inline: 7px;
+  }
+  .site-header .header-actions .h-9 svg {
+    display: none;
+  }
+  .site-header .language {
+    font-size: 12px;
+  }
+}

@@ -12,7 +12,7 @@ test('homepage, locale switch and responsive layout', async ({ page }) => {
 });
 test('search navigates with encoded query and filters remain in URL', async ({ page }) => {
   await page.goto('/', { waitUntil: 'domcontentloaded' });
-  const search = page.getByRole('textbox', { name: 'What are you sourcing today?' });
+  const search = page.getByRole('combobox', { name: 'What are you sourcing today?' });
   await search.fill('cotton shirt');
   await search.press('Enter');
   await expect(page).toHaveURL(/\/products\?q=cotton/);

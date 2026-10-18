@@ -1,0 +1,364 @@
+.bo-progress-toggle,
+.bo-action-total {
+  display: none;
+}
+@media screen and (max-width: 800px) {
+  .bo-detail .order-back {
+    margin: 0 0 8px;
+    min-height: 44px;
+    gap: 8px;
+    font-size: 13px;
+  }
+  .bo-detail .order-detail-heading {
+    position: relative;
+    margin-top: 0;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    gap: 12px;
+  }
+  .bo-detail .order-detail-heading > div:first-child {
+    padding-right: 58px;
+    min-width: 0;
+  }
+  .bo-detail .order-detail-heading .eyebrow {
+    display: none;
+  }
+  .bo-detail .order-detail-heading h1 {
+    font-size: 28px;
+    font-weight: 750;
+    line-height: 1.3;
+    margin: 0 0 6px;
+    overflow-wrap: anywhere;
+  }
+  .bo-detail .order-detail-heading p {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .bo-detail .order-detail-heading > div:last-child {
+    gap: 7px;
+  }
+  .bo-detail .order-detail-heading > div:last-child > .order-status:nth-child(2) {
+    display: none;
+  }
+  .bo-detail .order-detail-heading .order-status {
+    font-size: 11px;
+    padding: 5px 9px;
+  }
+  .bo-detail .order-print {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 46px;
+    height: 46px;
+    min-height: 46px;
+    margin: 0;
+    padding: 0;
+    background: white;
+    border: 1px solid #dce5d7;
+    border-radius: 12px;
+  }
+  .bo-detail .order-print svg {
+    width: 20px;
+    height: 20px;
+  }
+  .bo-detail .order-print > span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .bo-detail .bo-status-banner {
+    padding: 16px;
+    gap: 12px;
+    margin-bottom: 12px;
+    border-radius: 14px;
+    align-items: flex-start;
+    border: 1px solid #dce7d4;
+    background: #eef4e9;
+  }
+  .bo-detail .bo-banner-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 0;
+  }
+  .bo-detail .bo-banner-icon svg {
+    width: 21px;
+    height: 21px;
+  }
+  .bo-detail .bo-status-banner .bo-eyebrow {
+    display: none;
+  }
+  .bo-detail .bo-status-banner h2 {
+    font-size: 17px;
+    line-height: 1.45;
+    margin-bottom: 4px;
+  }
+  .bo-detail .bo-status-banner p {
+    font-size: 13px;
+    line-height: 1.65;
+    color: #52664b;
+  }
+  .bo-detail .bo-status-disputed,
+  .bo-detail .bo-status-cancelled {
+    background: #fbf0e8;
+    border-color: #eddccb;
+  }
+  .bo-detail .bo-progress-wrap {
+    margin: 0 0 16px;
+    border: 1px solid #e0e7dc;
+    border-radius: 12px;
+    background: white;
+    overflow: hidden;
+  }
+  .bo-detail .bo-progress-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 16px;
+    color: #38583d;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 600;
+    background: white;
+  }
+  .bo-progress-toggle > span {
+    flex: 1;
+  }
+  .bo-progress-toggle > small {
+    font-size: 12px;
+    color: #62755e;
+  }
+  .bo-detail .bo-progress-wrap.is-expanded .bo-progress-toggle svg {
+    transform: rotate(180deg);
+  }
+  .bo-detail .bo-progress-wrap:not(.is-expanded) .order-progress {
+    display: none;
+  }
+  .bo-detail .bo-progress-wrap .order-progress {
+    display: grid;
+    grid-template-columns: 1fr;
+    border: 0;
+    border-top: 1px solid #edf0e9;
+    border-radius: 0;
+    padding: 8px 16px 16px;
+    margin: 0;
+    gap: 0;
+  }
+  .bo-detail .bo-progress-wrap .order-progress li {
+    flex-direction: row;
+    align-items: center;
+    position: relative;
+    min-height: 42px;
+    padding: 7px 0;
+    border: 0;
+    gap: 12px;
+    font-size: 13px;
+  }
+  .bo-detail .bo-progress-wrap .order-progress li:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 13px;
+    top: 35px;
+    height: calc(100% - 28px);
+    width: 1px;
+    background: #e0e8dc;
+  }
+  .bo-detail .bo-progress-wrap .order-progress li > span {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+  }
+  .bo-detail .order-panel {
+    padding: 18px;
+    border-radius: 16px;
+    margin-bottom: 16px;
+  }
+  .bo-detail .order-actions-panel {
+    background: white;
+    border-color: #dfe7da;
+  }
+  .bo-detail .bo-action-total {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px 12px;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #e8ede4;
+  }
+  .bo-action-total > span {
+    font-size: 13px;
+    color: #5e7059;
+  }
+  .bo-action-total > strong {
+    font-size: 25px;
+    font-weight: 750;
+    color: #194b39;
+    line-height: 1.35;
+    letter-spacing: -0.04em;
+    overflow-wrap: anywhere;
+    min-width: 0;
+  }
+  .bo-action-total > small {
+    flex-basis: 100%;
+    font-size: 12px;
+    color: #7a633a;
+    line-height: 1.6;
+  }
+  .bo-detail .order-actions-panel > h2 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .bo-detail .order-actions-panel > p {
+    font-size: 13px;
+    margin: 0 0 12px;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+  }
+  .bo-detail .order-actions-panel > p > svg {
+    display: inline;
+    vertical-align: -2px;
+    margin-right: 3px;
+  }
+  .bo-detail .order-action-buttons {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .bo-detail .order-action-buttons > button {
+    font-size: 13px;
+    padding: 11px 10px;
+    border-radius: 11px;
+    min-height: 48px;
+  }
+  .bo-detail
+    .order-action-buttons
+    > button:not([data-order-action='cancel']):not([data-order-action='request_cancel']):not(
+      [data-order-action='dispute']
+    ):not([data-order-action='note']),
+  .bo-detail .order-action-buttons > button:only-child {
+    grid-column: 1 / -1;
+  }
+  .bo-detail .order-panel > header {
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+    gap: 9px;
+  }
+  .bo-detail .order-panel > header svg {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+  }
+  .bo-detail .order-panel > header h2 {
+    font-size: 16px;
+  }
+  .bo-detail .order-item-line {
+    padding: 12px 0;
+    gap: 6px;
+  }
+  .bo-detail .order-item-line h3 {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .bo-detail .order-item-line > strong {
+    font-size: 16px;
+  }
+  .bo-detail .order-totals {
+    gap: 12px;
+    margin: 12px 0 0;
+    padding-top: 16px;
+  }
+  .bo-detail .order-totals > div {
+    font-size: 13px;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .bo-detail .order-totals dt {
+    min-width: 0;
+    flex: 1;
+  }
+  .bo-detail .order-totals dd {
+    max-width: 62%;
+    text-align: right;
+    line-height: 1.6;
+  }
+  .bo-detail .order-totals > div:last-child {
+    align-items: center;
+    background: #f1f5ec;
+    border-radius: 10px;
+    gap: 8px;
+    padding: 12px;
+  }
+  .bo-detail .order-totals > div:last-child dd {
+    font-size: 22px;
+  }
+  .bo-detail .order-contact-grid {
+    gap: 18px;
+    font-size: 13px;
+    line-height: 1.8;
+  }
+  .bo-detail .order-contact-grid address {
+    padding: 12px;
+    border-radius: 10px;
+    background: #f6f8f2;
+  }
+  .bo-detail .order-panel > .preserve-lines {
+    font-size: 13px;
+    margin-top: 16px;
+  }
+  .bo-detail .order-history li {
+    padding-bottom: 16px;
+  }
+  .bo-detail .order-history li:last-child {
+    padding-bottom: 0;
+  }
+  .bo-detail .order-history li > div {
+    min-width: 0;
+  }
+  .bo-detail .order-history strong {
+    font-size: 13px;
+  }
+  .bo-detail .order-history small,
+  .bo-detail .order-payment-record small {
+    font-size: 12px;
+    line-height: 1.7;
+  }
+  .bo-detail .order-payment-record {
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .bo-detail .order-number-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .bo-detail .order-terminal-status {
+    padding: 14px 16px;
+    gap: 12px;
+    margin-bottom: 14px;
+    border-radius: 12px;
+  }
+  .bo-detail .order-terminal-status strong {
+    font-size: 14px;
+  }
+  .bo-detail .order-terminal-status p {
+    font-size: 12px;
+  }
+  .bo-detail .order-pending-delivery {
+    align-items: flex-start;
+    text-align: left;
+  }
+}
+@media screen and (max-width: 800px) {
+  .bo-detail-pending {
+    min-height: 340px;
+  }
+}

@@ -1,3 +1,6 @@
+import { ShippingSettings } from '@/components/growth/shipping';
+import { SupplierOptions } from '@/components/product/supplier-options';
+import { prepareImageUpload } from '@/lib/image-upload';
 import { useT } from '@/lib/i18n';
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -5,13 +8,14 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { z } from 'zod';
-import { Plus, Trash2, Upload, ShieldCheck, ExternalLink } from 'lucide-react';
+import { Plus, Trash2, Upload, ShieldCheck } from 'lucide-react';
 import { db } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
+import { usePlatformSettings } from '@/lib/platform';
 import { businessSchema, productSchema } from '@/lib/validation';
 import { locations } from '@/lib/locations';
-import { categories, signedImage } from '@/lib/catalog';
-import { money, validateUpload } from '@/lib/utils';
+import { categories } from '@/lib/catalog';
+import { money, validateUpload, randomUUID } from '@/lib/utils';
 import type { Business, Product, PriceTier, Json } from '@/lib/models';
 import { Button } from '@/components/ui/button';
 import { Field, Notice, State, SectionTitle, ConfirmButton, useTitle } from '@/components/shared';
@@ -34,11 +38,14 @@ export function useBusiness() {
 export function BusinessPage() {
   const tr = useT();
   const { session, role } = useAuth();
+  const platform = usePlatformSettings();
+  const registrationPaused = platform.data?.supplier_registration_open === false;
   const cache = useQueryClient();
   const own = useBusiness();
   useTitle('Your business');
   const register = useMutation({
     mutationFn: async () => {
+      if (registrationPaused) throw new Error(tr('Supplier applications paused'));
       const { error } = await db().rpc('register_supplier');
       if (error) throw error;
     },
@@ -47,7 +54,9 @@ export function BusinessPage() {
   return (
     <>
       <SectionTitle
-        title={tr(role === 'buyer' ? 'Bring your business to Paikari.' : 'Your business profile')}
+        title={tr(
+          role === 'buyer' ? 'Bring your business to Paikarii.com.' : 'Your business profile',
+        )}
         description={tr(
           role === 'buyer'
             ? 'Create a supplier account and connect with wholesale buyers across Bangladesh.'
@@ -64,7 +73,19 @@ export function BusinessPage() {
             )}
           </p>
           <Notice error={register.error} />
-          <Button disabled={register.isPending} onClick={() => register.mutate()}>
+          {registrationPaused && (
+            <p role="status">
+              {tr('Supplier applications paused')}.{' '}
+              {tr('Existing suppliers can continue using their workspace.')}
+            </p>
+          )}
+          <Notice error={platform.error} />
+          <Button
+            disabled={
+              register.isPending || registrationPaused || platform.isLoading || platform.isError
+            }
+            onClick={() => register.mutate()}
+          >
             {tr('Become a supplier')}
           </Button>
         </div>
@@ -74,7 +95,10 @@ export function BusinessPage() {
           {own.isLoading ? (
             <State title={tr('Loading business…')} />
           ) : (
-            <BusinessForm key={own.data?.updated_at ?? 'new'} business={own.data ?? null} />
+            <>
+              <BusinessForm key={own.data?.updated_at ?? 'new'} business={own.data ?? null} />
+              {own.data && <ShippingSettings business={own.data.id} />}
+            </>
           )}
         </>
       )}
@@ -333,11 +357,16 @@ export function ProductEditor() {
         description={tr('Clear details and good photos help buyers find the right fit.')}
       />
       <ProductForm
-        key={id ?? 'new'}
+        key={id ? `${id}-${record.data?.product.updated_at}` : 'new'}
         product={record.data?.product}
         tiers={record.data?.tiers ?? []}
       />
-      {id && <ImageManager productId={id} />}
+      {id && (
+        <>
+          <ImageManager productId={id} />
+          <SupplierOptions id={id} />
+        </>
+      )}
     </>
   );
 }
@@ -427,10 +456,22 @@ function ProductForm({ product, tiers }: { product?: Product; tiers: PriceTier[]
           <input type="number" min="1" {...form.register('moq', { valueAsNumber: true })} />
         </Field>
         <Field
-          label={tr('Available stock / supply capacity')}
+          label={tr('Available stock (unreserved units)')}
           error={form.formState.errors.stock?.message}
         >
-          <input type="number" min="0" {...form.register('stock', { valueAsNumber: true })} />
+          <input
+            type="number"
+            min="0"
+            aria-label={tr('Available stock (unreserved units)')}
+            aria-describedby={product ? 'product-stock-help' : undefined}
+            readOnly={!!product}
+            {...form.register('stock', { valueAsNumber: true })}
+          />
+          {product && (
+            <small id="product-stock-help">
+              {tr('Manage existing stock with the SKU controls below.')}
+            </small>
+          )}
         </Field>
       </div>
       <Field label={tr('Product description')} error={form.formState.errors.description?.message}>
@@ -532,11 +573,12 @@ function ImageManager({ productId }: { productId: string }) {
   const upload = useMutation({
     mutationFn: async (file: File) => {
       if ((images.data?.length ?? 0) >= 10) throw new Error('Use up to 10 product images.');
-      const ext = validateUpload(file, 'product-images');
-      const path = `${session!.user.id}/${productId}/${crypto.randomUUID()}.${ext}`;
+      const prepared = await prepareImageUpload(file, 'product-images');
+      const ext = validateUpload(prepared, 'product-images');
+      const path = `${session!.user.id}/${productId}/${randomUUID()}.${ext}`;
       const { error } = await db()
         .storage.from('product-images')
-        .upload(path, file, { contentType: file.type, upsert: false });
+        .upload(path, prepared, { contentType: prepared.type, upsert: false });
       if (error) throw error;
       const res = await db()
         .from('product_images')
@@ -551,6 +593,11 @@ function ImageManager({ productId }: { productId: string }) {
   return (
     <div className="panel image-manager">
       <h3>{tr('Product images')}</h3>
+      <p>
+        {tr(
+          'Show the exact item buyers will receive. Include a clear main photo, alternate angles, and relevant variant details. Category and lifestyle pictures cannot replace actual product photos.',
+        )}
+      </p>
       <p>{tr('JPEG, PNG or WebP. Up to 5 MB each. New images submit the product for review.')}</p>
       <Notice error={upload.error ?? images.error} />
       <div className="upload-grid">
@@ -571,6 +618,9 @@ function ImageManager({ productId }: { productId: string }) {
           </div>
         ))}
       </div>
+      <p className="muted">
+        {tr('Images are automatically compressed before upload. Source images up to 20 MB.')}
+      </p>
       <label className="upload-input">
         <Upload size={18} />
         {tr(upload.isPending ? 'Uploading…' : 'Upload image')}
@@ -585,121 +635,5 @@ function ImageManager({ productId }: { productId: string }) {
         />
       </label>
     </div>
-  );
-}
-export function VerificationPage() {
-  const tr = useT();
-  const own = useBusiness();
-  const { session } = useAuth();
-  const cache = useQueryClient();
-  const [file, setFile] = useState<File>();
-  const [type, setType] = useState<'trade_license' | 'tax_certificate' | 'registration'>(
-    'trade_license',
-  );
-  useTitle('Business verification');
-  const requests = useQuery({
-    queryKey: ['own-verifications', own.data?.id],
-    enabled: !!own.data,
-    queryFn: async () => {
-      const { data, error } = await db()
-        .from('supplier_verifications')
-        .select('*')
-        .eq('business_id', own.data!.id)
-        .order('created_at', { ascending: false });
-      if (error) throw error;
-      return data;
-    },
-  });
-  const upload = useMutation({
-    mutationFn: async () => {
-      if (!file) throw new Error('Choose a business document.');
-      const ext = validateUpload(file, 'business-documents');
-      const path = `${session!.user.id}/${crypto.randomUUID()}.${ext}`;
-      const { error } = await db()
-        .storage.from('business-documents')
-        .upload(path, file, { contentType: file.type, upsert: false });
-      if (error) throw error;
-      const r = await db()
-        .from('supplier_verifications')
-        .insert({ business_id: own.data!.id, document_path: path, document_type: type });
-      if (r.error) throw r.error;
-    },
-    onSuccess: () => cache.invalidateQueries({ queryKey: ['own-verifications'] }),
-  });
-  const open = useMutation({
-    mutationFn: async (path: string) => {
-      const url = await signedImage(path, 'business-documents');
-      const preview = window.open(url, '_blank');
-      if (preview) preview.opener = null;
-      else window.location.assign(url);
-    },
-  });
-  if (own.isLoading) return <State title={tr('Loading business\u2026')} />;
-  return (
-    <>
-      <SectionTitle
-        title={tr('Build trust. Get verified.')}
-        description={tr(
-          'Your documents are private and accessible only to your account and authorized reviewers.',
-        )}
-      />
-      <Notice error={own.error ?? requests.error ?? open.error} />
-      {!own.data ? (
-        <State
-          title={tr('Create your business profile first')}
-          action={<Link to="/dashboard/business">{tr('Set up business ↗')}</Link>}
-        />
-      ) : (
-        <>
-          <form
-            className="panel form-stack"
-            onSubmit={(e) => {
-              e.preventDefault();
-              upload.mutate();
-            }}
-          >
-            <Field label={tr('Document type')}>
-              <select value={type} onChange={(e) => setType(e.target.value as typeof type)}>
-                <option value="trade_license">{tr('Trade license')}</option>
-                <option value="tax_certificate">{tr('Tax certificate')}</option>
-                <option value="registration">{tr('Business registration')}</option>
-              </select>
-            </Field>
-            <Field label={tr('Document (PDF, JPEG or PNG; up to 10 MB)')}>
-              <input
-                required
-                type="file"
-                accept="application/pdf,image/jpeg,image/png"
-                onChange={(e) => setFile(e.target.files?.[0])}
-              />
-            </Field>
-            <Notice
-              error={upload.error}
-              success={upload.isSuccess ? tr('Document submitted for review.') : undefined}
-            />
-            <Button disabled={upload.isPending}>{tr('Submit for verification')}</Button>
-          </form>
-          <h3 className="subheading">{tr('Submission history')}</h3>
-          {requests.data?.map((r) => (
-            <div className="panel verification-row" key={r.id}>
-              <div>
-                <strong>{tr(r.document_type.replaceAll('_', ' '))}</strong>
-                <span className={`status-badge ${r.status}`}>{tr(r.status)}</span>
-                <p>{r.review_note || tr('Awaiting review')}</p>
-              </div>
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={open.isPending}
-                onClick={() => open.mutate(r.document_path)}
-              >
-                {tr('View document')}
-                <ExternalLink size={14} />
-              </Button>
-            </div>
-          ))}
-        </>
-      )}
-    </>
   );
 }

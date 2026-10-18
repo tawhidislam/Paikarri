@@ -1,0 +1,208 @@
+.buyer-workspace-dialog {
+  position: fixed;
+  inset: auto 0 0;
+  width: 100%;
+  max-width: 520px;
+  max-height: calc(100dvh - 24px);
+  margin: 0 auto;
+  padding: 0;
+  border: 1px solid #dce5d6;
+  border-bottom: 0;
+  border-radius: 24px 24px 0 0;
+  color: #244631;
+  background: #fbfcf9;
+  box-shadow: 0 -20px 80px #132d2926;
+  overflow: hidden;
+}
+.buyer-workspace-dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+.buyer-workspace-dialog::backdrop {
+  background: #142c275c;
+  backdrop-filter: blur(3px);
+}
+.workspace-menu-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 18px 20px;
+  background: #194b39;
+  color: white;
+  flex-shrink: 0;
+}
+.workspace-menu-avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: #ffffff17;
+  border: 1px solid #ffffff2b;
+  display: grid;
+  place-items: center;
+  font-size: 23px;
+  font-weight: 650;
+  flex-shrink: 0;
+}
+.workspace-menu-header > div {
+  flex: 1;
+  min-width: 0;
+}
+.workspace-menu-header h2 {
+  margin: 0 0 5px;
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: -0.025em;
+}
+.workspace-menu-header p {
+  font-size: 12px;
+  color: #dbe9d4;
+  line-height: 1.6;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.workspace-menu-header > button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  color: white;
+  background: #ffffff12;
+  flex-shrink: 0;
+}
+.workspace-menu-body {
+  padding: 18px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  min-height: 0;
+}
+.workspace-menu-body > section {
+  margin: 0 0 20px;
+}
+.workspace-menu-body h3 {
+  font-size: 12px;
+  font-weight: 650;
+  color: #64745c;
+  line-height: 1.5;
+  margin: 0 0 10px;
+}
+.workspace-menu-body section > div {
+  display: grid;
+  gap: 8px;
+}
+.workspace-menu-body a {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  min-height: 50px;
+  gap: 10px;
+  padding: 12px;
+  background: white;
+  border: 1px solid #e2e8dd;
+  border-radius: 12px;
+  color: #385336;
+  font-size: 13px;
+  line-height: 1.5;
+  text-decoration: none;
+}
+.workspace-menu-body a > svg {
+  flex-shrink: 0;
+  color: #6b835e;
+}
+.workspace-menu-body a > span:not(.chat-unread-badge) {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.workspace-menu-body a[aria-current='page'] {
+  background: #eaf1e3;
+  border-color: #c2d2b8;
+  color: #234c34;
+  font-weight: 700;
+}
+.workspace-menu-body a[aria-current='page'] > svg {
+  color: #365e37;
+}
+.workspace-menu-body .workspace-menu-buying > div {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.workspace-menu-body .workspace-menu-buying a {
+  min-height: 76px;
+  flex-direction: column;
+  gap: 8px;
+  text-align: center;
+  font-size: 12px;
+  padding: 12px 5px;
+}
+.workspace-menu-buying a > .workspace-menu-chevron,
+.workspace-menu-sourcing a > .workspace-menu-chevron {
+  display: none;
+}
+.workspace-menu-body .workspace-menu-sourcing > div {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.workspace-menu-body .workspace-menu-sourcing a {
+  min-height: 66px;
+  padding: 10px;
+  gap: 8px;
+}
+.workspace-menu-body .workspace-menu-business {
+  background: #f0f4e8;
+  border-color: #dce7cd;
+}
+.workspace-menu-business > span {
+  flex: 1;
+}
+.workspace-menu-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  padding: 12px 18px max(16px, env(safe-area-inset-bottom));
+  border-top: 1px solid #e2e8dd;
+  background: white;
+}
+.workspace-menu-footer > a,
+.workspace-menu-footer > button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex: 1;
+  min-height: 46px;
+  padding: 10px;
+  font-size: 13px;
+  border-radius: 10px;
+  line-height: 1.5;
+}
+.workspace-menu-footer > a {
+  color: #4b6544;
+  border: 1px solid #e0e7da;
+}
+.workspace-menu-footer > button {
+  color: #914d37;
+  background: #fcf3ed;
+  border: 1px solid #f0ded2;
+}
+.workspace-menu-footer > p {
+  flex-basis: 100%;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #914d37;
+  overflow-wrap: anywhere;
+}
+.buyer-workspace-dialog :is(button, a):focus-visible {
+  outline: 3px solid #8ba975;
+  outline-offset: 2px;
+}
+.buyer-workspace-dialog button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+@media print {
+  .buyer-workspace-dialog {
+    display: none !important;
+  }
+}

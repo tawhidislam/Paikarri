@@ -9,3 +9,14 @@ test-results/
 public/sitemap.xml
 public/robots.txt
 *.tsbuildinfo
+
+# Deployment cache, generated audits, private test artifacts and operator files
+.vercel/
+artifacts/
+output/
+tmp/
+/*.pdf
+*.log
+.agents/
+.codex/
+.aws/

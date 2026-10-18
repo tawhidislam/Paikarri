@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import '@/lib/utils';
 import App from './App';
 import '@fontsource-variable/dm-sans';
 import '@fontsource-variable/manrope';

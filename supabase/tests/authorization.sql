@@ -71,7 +71,7 @@ select pg_temp.assert_true((select count(*)=0 from public.supplier_verifications
 insert into public.quotation_responses(request_id,price,message) select id,90,'Delivery within seven days.' from public.quotation_requests;
 set local request.jwt.claims='{"sub":"10000000-0000-4000-8000-000000000004","role":"authenticated"}';
 select public.moderate_product('40000000-0000-4000-8000-000000000001','approved','RLS test');
-select pg_temp.assert_true((select count(*)=1 from public.admin_audit_logs where entity_id='40000000-0000-4000-8000-000000000001'),'Moderation creates audit log');
+select pg_temp.assert_true((select count(*)=1 from public.admin_audit_logs where action='product.approved' and entity_id='40000000-0000-4000-8000-000000000001'),'Moderation creates audit log');
 set local request.jwt.claims='{"sub":"10000000-0000-4000-8000-000000000001","role":"authenticated"}';
 select pg_temp.assert_true((select count(*)=1 from public.quotation_responses),'Buyer can read supplier response');
 select pg_temp.assert_true((select count(*)=0 from public.product_moderation_notes),'Buyer cannot read private reviewer feedback');

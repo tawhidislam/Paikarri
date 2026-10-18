@@ -1,3 +1,7 @@
+import { growthDb } from '@/lib/growth';
+import { z } from 'zod';
+import { SaveSupplier } from '@/components/save-supplier';
+import { ChatButton } from '@/components/marketplace-chat';
 import { useT } from '@/lib/i18n';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -6,6 +10,7 @@ import { catalog, categories, businesses } from '@/lib/catalog';
 import { configured, db } from '@/lib/supabase';
 import { useLocale } from '@/lib/i18n';
 import { locations } from '@/lib/locations';
+import { money } from '@/lib/utils';
 import { ProductCard } from '@/components/product-card';
 import { SectionTitle, State, Notice, useTitle } from '@/components/shared';
 import { Button } from '@/components/ui/button';
@@ -32,6 +37,45 @@ export default function Marketplace() {
     queryFn: () => catalog(filters),
     enabled: configured,
   });
+  const facets = useQuery({
+    queryKey: [
+      'catalog-facets',
+      filters.q,
+      filters.category,
+      filters.division,
+      filters.district,
+      filters.min,
+      filters.max,
+      filters.moq,
+      filters.verified,
+    ],
+    enabled: configured,
+    queryFn: async () => {
+      const { data, error } = await growthDb().rpc('catalog_facets', {
+        keyword: filters.q || undefined,
+        category_slug: filters.category || undefined,
+        division_filter: filters.division || undefined,
+        district_filter: filters.district || undefined,
+        min_price: filters.min ? Number(filters.min) : undefined,
+        max_price: filters.max ? Number(filters.max) : undefined,
+        max_moq: filters.moq ? Number(filters.moq) : undefined,
+        verified_only: filters.verified,
+      });
+      if (error) throw error;
+      return z
+        .object({
+          categories: z.record(z.string(), z.number()),
+          divisions: z.record(z.string(), z.number()),
+          districts: z.record(z.string(), z.number()),
+          price_max: z.number(),
+        })
+        .parse(data);
+    },
+  });
+  const count = (group: 'categories' | 'divisions' | 'districts', key: string) =>
+    facets.data
+      ? ` (${new Intl.NumberFormat(locale === 'bn' ? 'bn-BD' : 'en-BD').format(facets.data[group][key] ?? 0)})`
+      : '';
   const cats = useQuery({ queryKey: ['categories'], queryFn: categories, enabled: configured });
   function update(key: string, value: string) {
     setParams((prev) => {
@@ -80,6 +124,7 @@ export default function Marketplace() {
               {cats.data?.map((c) => (
                 <option key={c.id} value={c.slug}>
                   {locale === 'bn' ? c.name_bn : c.name}
+                  {count('categories', c.slug)}
                 </option>
               ))}
             </select>
@@ -89,7 +134,10 @@ export default function Marketplace() {
             <select value={filters.division} onChange={(e) => update('division', e.target.value)}>
               <option value="">{tr('All Bangladesh')}</option>
               {Object.keys(locations).map((d) => (
-                <option key={d}>{d}</option>
+                <option key={d} value={d}>
+                  {tr(d)}
+                  {count('divisions', d)}
+                </option>
               ))}
             </select>
           </label>
@@ -101,7 +149,10 @@ export default function Marketplace() {
                 ? locations[filters.division]
                 : Object.values(locations).flat()
               ).map((d) => (
-                <option key={d}>{d}</option>
+                <option key={d} value={d}>
+                  {tr(d)}
+                  {count('districts', d)}
+                </option>
               ))}
             </select>
           </label>
@@ -127,6 +178,28 @@ export default function Marketplace() {
               />
             </div>
           </div>
+          {facets.data && facets.data.price_max > 0 && (
+            <label className="field">
+              <span>{tr('Maximum price')}</span>
+              <input
+                type="range"
+                min="0"
+                max={Math.ceil(facets.data.price_max)}
+                value={Math.min(
+                  Number(filters.max || facets.data.price_max),
+                  facets.data.price_max,
+                )}
+                onChange={(e) => update('max', e.target.value)}
+              />
+              <output>{money(Number(filters.max || facets.data.price_max), locale)}</output>
+            </label>
+          )}
+          {facets.isError && (
+            <p role="status">
+              {tr('Filter counts unavailable')}{' '}
+              <button onClick={() => void facets.refetch()}>{tr('Try again')}</button>
+            </p>
+          )}
           <label className="field">
             <span>{tr('Maximum MOQ')}</span>
             <input
@@ -231,14 +304,14 @@ export function Suppliers() {
     enabled: configured && !!id,
     queryFn: async () => {
       const { data, error } = await db()
-        .from('products')
+        .rpc('public_products')
         .select('id')
         .eq('business_id', id!)
         .eq('status', 'approved');
       if (error) throw error;
       const { hydrate } = await import('@/lib/catalog');
       const all = await db()
-        .from('products')
+        .rpc('public_products')
         .select('*')
         .in(
           'id',
@@ -291,7 +364,10 @@ export function Suppliers() {
                   </a>
                 )}
               </div>
-              <SaveSupplier id={business.id} />
+              <div className="form-stack">
+                <ChatButton business={business.id} />
+                <SaveSupplier id={business.id} />
+              </div>
             </div>
             <SectionTitle title={tr('Products from this supplier')} />
             {products.data?.length ? (
@@ -381,60 +457,6 @@ export function Suppliers() {
           )}
         />
       )}{' '}
-    </div>
-  );
-}
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '@/lib/auth';
-function SaveSupplier({ id }: { id: string }) {
-  const tr = useT();
-  const { session, role } = useAuth();
-  const cache = useQueryClient();
-  const key = ['saved-supplier', session?.user.id, id];
-  const saved = useQuery({
-    queryKey: key,
-    enabled: !!session && role === 'buyer',
-    queryFn: async () => {
-      const { data, error } = await db()
-        .from('saved_suppliers')
-        .select('business_id')
-        .eq('user_id', session!.user.id)
-        .eq('business_id', id)
-        .maybeSingle();
-      if (error) throw error;
-      return !!data;
-    },
-  });
-  const action = useMutation({
-    mutationFn: async () => {
-      const res = saved.data
-        ? await db()
-            .from('saved_suppliers')
-            .delete()
-            .eq('user_id', session!.user.id)
-            .eq('business_id', id)
-        : await db().from('saved_suppliers').insert({ user_id: session!.user.id, business_id: id });
-      if (res.error) throw res.error;
-    },
-    onSuccess: () => {
-      void cache.invalidateQueries({ queryKey: key });
-      void cache.invalidateQueries({ queryKey: ['saved-suppliers'] });
-    },
-  });
-  return (
-    <div>
-      {!session ? (
-        <Button asChild>
-          <Link to="/auth/login">{tr('Sign in to save supplier')}</Link>
-        </Button>
-      ) : (
-        role === 'buyer' && (
-          <Button onClick={() => action.mutate()} disabled={action.isPending}>
-            {tr(saved.data ? 'Unsave supplier' : 'Save supplier')}
-          </Button>
-        )
-      )}
-      <Notice error={action.error} />
     </div>
   );
 }

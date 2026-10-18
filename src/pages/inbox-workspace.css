@@ -1,0 +1,775 @@
+/* Full-page buyer and supplier workspaces share a single responsive layout.
+   Floating chat keeps its own shell; composer controls remain reusable. */
+.workspace-inbox {
+  --inbox-line: #dfe7e2;
+  --inbox-green: #17483b;
+  color: #203c31;
+  min-width: 0;
+}
+.workspace-inbox .inbox-page-heading {
+  margin-bottom: 20px;
+  gap: 20px;
+  align-items: center;
+}
+.workspace-inbox .inbox-eyebrow {
+  color: #537765;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+.workspace-inbox h1 {
+  font-size: 30px;
+  letter-spacing: -1px;
+  font-weight: 750;
+}
+.workspace-inbox .inbox-page-heading p {
+  font-size: 14px;
+  color: #64776d;
+}
+.workspace-inbox .inbox-private {
+  min-height: 44px;
+  font-size: 12px;
+  background: #f0f6f2;
+  color: #486452;
+  border-radius: 12px;
+}
+.buyer-inbox-browse {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid #d6e3da;
+  border-radius: 12px;
+  background: #fff;
+  color: #24583e;
+  font-size: 13px;
+  font-weight: 650;
+}
+.workspace-inbox .inbox-shell {
+  height: clamp(480px, calc(100dvh - 365px), 780px);
+  display: grid;
+  grid-template-columns: 310px minmax(0, 1fr);
+  border: 1px solid var(--inbox-line);
+  border-radius: 20px;
+  box-shadow: 0 10px 35px #193b2b06;
+}
+.workspace-inbox .inbox-list {
+  background: #fff;
+}
+.workspace-inbox .inbox-list-heading {
+  padding: 16px 16px 8px;
+}
+.workspace-inbox .inbox-list-heading h2 {
+  font-size: 15px;
+}
+.workspace-inbox .inbox-list-heading h2 > span {
+  font-size: 12px;
+  min-width: 24px;
+  min-height: 24px;
+  border-radius: 8px;
+  background: #eef4f0;
+  color: #3d6750;
+}
+.workspace-inbox .inbox-list-heading button {
+  width: 44px;
+  height: 44px;
+  color: #496c58;
+  border-radius: 12px;
+}
+.workspace-inbox .inbox-search {
+  margin: 0 16px 12px;
+  padding: 8px 12px;
+  min-height: 46px;
+  border: 1px solid #e3ebe5;
+  border-radius: 12px;
+  background: #f6f8f6;
+  gap: 8px;
+  color: #5f7b69;
+}
+.workspace-inbox .inbox-search:focus-within {
+  outline: 2px solid #729b7d;
+  outline-offset: 2px;
+}
+.workspace-inbox .inbox-search input {
+  font-size: 16px;
+  min-width: 0;
+  background: transparent;
+  outline: none;
+}
+.workspace-inbox .chat-list-tabs {
+  display: flex;
+  gap: 4px;
+  margin: 0 16px 12px;
+  padding: 4px;
+  border-radius: 12px;
+  background: #f0f4f1;
+}
+.workspace-inbox .chat-list-tabs button {
+  flex: 1;
+  min-height: 40px;
+  padding: 7px 8px;
+  font-size: 12px;
+  border: 0;
+  border-radius: 9px;
+  color: #63776b;
+  white-space: normal;
+  line-height: 1.5;
+}
+.workspace-inbox .chat-list-tabs button[aria-pressed='true'] {
+  color: #17483b;
+  background: white;
+  box-shadow: 0 2px 5px #173c2710;
+  font-weight: 700;
+}
+.workspace-inbox .inbox-threads {
+  padding: 0 8px 10px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.workspace-inbox .inbox-thread {
+  display: flex;
+  width: 100%;
+  gap: 11px;
+  padding: 14px 10px;
+  margin: 3px 0;
+  border: 1px solid transparent;
+  border-radius: 13px;
+  text-align: left;
+  align-items: flex-start;
+  transition: background 0.15s;
+}
+.workspace-inbox .inbox-thread:hover {
+  background: #f6f8f5;
+}
+.workspace-inbox .inbox-thread.is-selected {
+  background: #edf5ee;
+  border-color: #cbdfce;
+}
+.workspace-inbox .inbox-thread[data-unread='true'] .inbox-thread-title strong {
+  font-weight: 800;
+}
+.workspace-inbox .inbox-avatar {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: #e8f0e9;
+  border: 1px solid #dce9de;
+  color: #38674b;
+  font-size: 13px;
+  font-weight: 750;
+}
+.workspace-inbox .inbox-thread:nth-child(3n + 2) .inbox-avatar {
+  background: #f4eee0;
+  border-color: #ebe4d5;
+  color: #7c6740;
+}
+.workspace-inbox .inbox-thread-copy {
+  flex: 1;
+  min-width: 0;
+}
+.workspace-inbox .inbox-thread-title {
+  align-items: baseline;
+  gap: 8px;
+}
+.workspace-inbox .inbox-thread-title strong {
+  font-size: 14px;
+  color: #253f31;
+  line-height: 1.5;
+}
+.workspace-inbox .inbox-thread-title time {
+  font-size: 11px;
+  color: #718276;
+}
+.workspace-inbox .inbox-thread-preview {
+  font-size: 13px;
+  color: #63786b;
+  margin: 4px 0 7px;
+  line-height: 1.6;
+}
+.workspace-inbox .inbox-thread-type {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: #5c7665;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.workspace-inbox .chat-unread-badge {
+  margin-left: auto;
+  background: #255f43;
+  min-width: 21px;
+  height: 21px;
+  font-size: 11px;
+}
+.workspace-inbox .inbox-list-footer {
+  text-align: left;
+  justify-content: flex-start;
+  font-size: 11px;
+  color: #6e7f73;
+  padding: 13px 16px;
+  background: #fafcf9;
+  line-height: 1.6;
+}
+.workspace-inbox .inbox-list-footer svg {
+  flex-shrink: 0;
+}
+.workspace-inbox .inbox-chat {
+  background: #f5f7f3;
+  position: relative;
+  overflow: hidden;
+}
+.workspace-inbox .inbox-chat-header {
+  padding: 14px 22px;
+  min-height: 78px;
+  gap: 12px;
+  align-items: center;
+  border-bottom: 1px solid var(--inbox-line);
+}
+.workspace-inbox .inbox-chat-header > div {
+  flex: 1;
+  min-width: 0;
+}
+.workspace-inbox .inbox-chat-header h2 {
+  font-size: 16px;
+  line-height: 1.5;
+  letter-spacing: -0.2px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.workspace-inbox .inbox-chat-header p {
+  color: #607969;
+  font-size: 12px;
+  margin: 2px 0 0;
+  line-height: 1.5;
+}
+.workspace-inbox .inbox-chat-header p a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+}
+.workspace-inbox .inbox-chat-header .buyer-organization-summary {
+  display: block;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.workspace-inbox .inbox-connection {
+  color: #657b6b;
+  font-size: 11px;
+  gap: 6px;
+  margin: 0;
+}
+.workspace-inbox .inbox-connection i {
+  width: 6px;
+  height: 6px;
+}
+.buyer-chat-privacy {
+  flex-shrink: 0;
+  padding: 0 20px;
+  background: #fbfcfa;
+  border-bottom: 1px solid #e8eee6;
+  color: #617869;
+  font-size: 12px;
+}
+.buyer-chat-privacy summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  cursor: pointer;
+  list-style: none;
+}
+.buyer-chat-privacy summary::after {
+  content: '+';
+  margin-left: auto;
+  font-size: 18px;
+}
+.buyer-chat-privacy[open] summary::after {
+  content: '−';
+}
+.buyer-chat-privacy p {
+  padding: 0 0 12px;
+  line-height: 1.65;
+  max-width: 650px;
+}
+.workspace-inbox .inbox-history {
+  gap: 12px;
+  padding: 24px;
+  scrollbar-gutter: stable;
+  overscroll-behavior: contain;
+}
+.workspace-inbox .inbox-date-divider {
+  gap: 12px;
+  margin: 0 0 8px;
+}
+.workspace-inbox .inbox-date-divider span {
+  font-size: 11px;
+  background: #e9eee6;
+  color: #6b7d6d;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+.workspace-inbox .inbox-date-divider::before,
+.workspace-inbox .inbox-date-divider::after {
+  background: transparent;
+}
+.workspace-inbox .inbox-message-row {
+  max-width: min(84%, 580px);
+}
+.workspace-inbox .inbox-bubble {
+  background: #fff;
+  border: 1px solid #e0e8df;
+  padding: 11px 14px;
+  border-radius: 16px 16px 16px 4px;
+  box-shadow: 0 2px 4px #1b3b2303;
+}
+.workspace-inbox .is-own .inbox-bubble {
+  background: #e4efe1;
+  border-color: #d8e6d5;
+  border-radius: 16px 16px 4px 16px;
+}
+.workspace-inbox .inbox-bubble p {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #294534;
+}
+.workspace-inbox .inbox-bubble time {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+  font-size: 10px;
+  color: #6a816e;
+  margin-top: 6px;
+}
+.workspace-inbox .chat-receipt {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  color: #687d6c;
+}
+.workspace-inbox .chat-receipt.is-read {
+  color: #256844;
+}
+.workspace-inbox .chat-product-card {
+  border-radius: 10px;
+  background: #f4f7f1;
+}
+.workspace-inbox .chat-product-card strong {
+  font-size: 13px;
+}
+.workspace-inbox .chat-product-card small {
+  font-size: 12px;
+}
+.workspace-inbox .inbox-compose {
+  flex-shrink: 0;
+  padding: 10px 18px 8px;
+  background: #fff;
+  border-top: 1px solid var(--inbox-line);
+}
+.workspace-inbox .inbox-compose .notice {
+  margin: 0 0 8px;
+  font-size: 13px;
+}
+.buyer-chat-prompts {
+  margin-bottom: 6px;
+  color: #56735e;
+  font-size: 12px;
+}
+.buyer-chat-prompts summary {
+  list-style: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  cursor: pointer;
+}
+.buyer-chat-prompts summary::after {
+  content: '+';
+  margin-left: 5px;
+}
+.buyer-chat-prompts[open] summary::after {
+  content: '−';
+}
+.workspace-inbox .chat-quick-replies {
+  gap: 6px;
+  margin: 0 0 6px;
+  padding: 3px 0;
+  overflow-x: auto;
+}
+.workspace-inbox .chat-quick-replies button {
+  min-height: 40px;
+  padding: 6px 10px;
+  border-radius: 9px;
+  font-size: 12px;
+  background: #f6f8f3;
+  color: #45664f;
+}
+.workspace-inbox .inbox-compose form {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 44px;
+  align-items: end;
+  gap: 5px;
+  padding: 5px;
+  border: 1px solid #ccdccd;
+  border-radius: 16px;
+  background: #f8faf6;
+}
+.workspace-inbox .inbox-compose form:focus-within {
+  outline: 2px solid #91af91;
+  outline-offset: 2px;
+}
+.workspace-inbox .inbox-compose textarea {
+  padding: 10px 6px;
+  min-height: 44px;
+  max-height: 120px;
+  border: 0;
+  outline: 0;
+  box-shadow: none;
+  background: transparent;
+  resize: none;
+  font-size: 16px;
+  line-height: 1.5;
+}
+.workspace-inbox .inbox-compose form button {
+  height: 44px;
+  min-height: 44px;
+  width: 44px;
+  min-width: 44px;
+  padding: 0;
+  border-radius: 12px;
+}
+.workspace-inbox .inbox-compose form button > span {
+  display: none;
+}
+.workspace-inbox .inbox-compose .chat-attach-button {
+  margin: 0;
+  background: transparent;
+  color: #4f7159;
+}
+.workspace-inbox .chat-image-draft {
+  padding: 6px 8px;
+  gap: 10px;
+  margin: 0 0 8px;
+  border-radius: 12px;
+  background: #f7f9f5;
+}
+.workspace-inbox .chat-image-draft img {
+  width: 48px;
+  height: 48px;
+}
+.workspace-inbox .chat-image-draft button {
+  min-width: 44px;
+  min-height: 44px;
+}
+.workspace-inbox .chat-product-draft {
+  max-height: 100px;
+  overflow: auto;
+}
+.workspace-inbox .inbox-compose-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 6px;
+  color: #748277;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.workspace-inbox .buyer-mobile-send-hint {
+  display: none;
+}
+.workspace-inbox .inbox-chat-footer {
+  display: none;
+}
+.buyer-jump-latest {
+  position: absolute;
+  right: 20px;
+  bottom: 160px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid #d4e3d4;
+  border-radius: 24px;
+  background: white;
+  color: #346047;
+  box-shadow: 0 4px 20px #15382215;
+  font-size: 12px;
+  z-index: 2;
+}
+.workspace-inbox .inbox-welcome {
+  padding: 32px;
+  gap: 16px;
+}
+.workspace-inbox .inbox-welcome > svg {
+  width: 72px;
+  height: 72px;
+  padding: 19px;
+  border-radius: 24px;
+  background: #e7f0e6;
+  color: #527e58;
+}
+.workspace-inbox .inbox-welcome h2 {
+  font-size: 24px;
+  max-width: 400px;
+  color: #30523a;
+  line-height: 1.4;
+}
+.workspace-inbox .inbox-welcome > p {
+  font-size: 14px;
+  max-width: 360px;
+  color: #69806a;
+  line-height: 1.8;
+}
+.workspace-inbox .inbox-welcome-note {
+  color: #718071;
+  font-size: 12px;
+}
+.workspace-inbox .inbox-list-empty,
+.workspace-inbox .inbox-chat-empty {
+  padding: 30px 20px;
+  color: #607863;
+  line-height: 1.7;
+}
+.workspace-inbox .inbox-list-empty h3 {
+  font-size: 16px;
+}
+.workspace-inbox .inbox-list-empty p {
+  font-size: 13px;
+}
+.workspace-inbox :is(a, button, summary):focus-visible {
+  outline: 2px solid #4f805c;
+  outline-offset: 3px;
+}
+@media (max-width: 1100px) {
+  .workspace-inbox .inbox-shell {
+    grid-template-columns: 270px minmax(0, 1fr);
+  }
+  .workspace-inbox .inbox-chat-header {
+    flex-wrap: wrap;
+    padding: 12px 16px;
+    gap: 8px;
+  }
+  .workspace-inbox .inbox-connection {
+    margin-left: 50px;
+  }
+}
+@media (max-width: 800px), (max-width: 1000px) and (max-height: 500px) {
+  .workspace-inbox .inbox-page-heading {
+    margin-bottom: 16px;
+    gap: 12px;
+  }
+  .workspace-inbox h1 {
+    font-size: 27px;
+    margin-bottom: 4px;
+  }
+  .workspace-inbox .inbox-page-heading .inbox-eyebrow {
+    display: none;
+  }
+  .workspace-inbox .inbox-page-heading p {
+    font-size: 13px;
+    max-width: 260px;
+  }
+  .workspace-inbox .inbox-page-heading > .buyer-inbox-browse {
+    max-width: 120px;
+    font-size: 12px;
+    padding: 8px;
+    flex-shrink: 0;
+  }
+  .workspace-inbox .inbox-private {
+    display: none;
+  }
+  .workspace-inbox .inbox-shell {
+    display: block;
+    height: auto;
+    min-height: 440px;
+    border-radius: 16px;
+  }
+  .workspace-inbox .inbox-list {
+    height: auto;
+    min-height: 440px;
+    border: 0;
+  }
+  .workspace-inbox .inbox-threads {
+    min-height: 200px;
+    max-height: 65dvh;
+  }
+  .workspace-inbox .inbox-chat {
+    display: none;
+  }
+  body:has(.workspace-inbox.is-reading-thread) {
+    overflow: hidden;
+  }
+  body:has(.workspace-inbox.is-reading-thread)
+    :is(.site-header, .site-footer, .topbar, .dashboard-sidebar) {
+    display: none;
+  }
+  .workspace-inbox.is-reading-thread {
+    position: fixed;
+    inset-inline: 0;
+    top: var(--buyer-chat-top, 0px);
+    height: var(--buyer-chat-height, 100dvh);
+    z-index: 90;
+    background: #f5f7f3;
+    padding-top: env(safe-area-inset-top);
+    overflow: hidden;
+  }
+  .workspace-inbox.is-reading-thread .inbox-page-heading {
+    display: none;
+  }
+  .workspace-inbox.is-reading-thread .inbox-shell {
+    height: 100%;
+    min-height: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .workspace-inbox .inbox-shell.has-thread .inbox-list {
+    display: none;
+  }
+  .workspace-inbox .inbox-shell.has-thread .inbox-chat {
+    display: flex;
+    height: 100%;
+  }
+  .workspace-inbox .inbox-chat-header {
+    display: grid;
+    grid-template-columns: 40px 36px minmax(0, 1fr);
+    padding: 8px 10px;
+    gap: 0 8px;
+    min-height: 74px;
+  }
+  .workspace-inbox .inbox-mobile-back {
+    display: inline-flex;
+    grid-row: 1 / span 2;
+    width: 40px;
+    min-width: 40px;
+    height: 44px;
+    padding: 0;
+  }
+  .workspace-inbox .inbox-chat-header .inbox-avatar {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    border-radius: 12px;
+    grid-row: 1 / span 2;
+  }
+  .workspace-inbox .inbox-chat-header > div {
+    grid-column: 3;
+    grid-row: 1;
+  }
+  .workspace-inbox .inbox-chat-header h2 {
+    font-size: 14px;
+  }
+  .workspace-inbox .inbox-chat-header p {
+    font-size: 11px;
+    margin: 0;
+  }
+  .workspace-inbox .inbox-chat-header p a {
+    min-height: 22px;
+  }
+  .workspace-inbox .inbox-connection {
+    grid-column: 3;
+    margin: 0;
+    font-size: 10px;
+  }
+  .workspace-inbox .buyer-chat-privacy {
+    padding: 0 14px;
+    font-size: 11px;
+  }
+  .workspace-inbox .buyer-chat-privacy summary {
+    min-height: 36px;
+  }
+  .workspace-inbox .inbox-history {
+    padding: 14px 12px;
+    gap: 10px;
+    scrollbar-gutter: auto;
+  }
+  .workspace-inbox .inbox-message-row {
+    max-width: 92%;
+  }
+  .workspace-inbox .inbox-bubble {
+    padding: 10px 12px;
+  }
+  .workspace-inbox .inbox-bubble p {
+    font-size: 14px;
+  }
+  .workspace-inbox .inbox-compose {
+    padding: 6px 10px max(8px, env(safe-area-inset-bottom));
+    max-height: 50%;
+    overflow-y: auto;
+  }
+  .workspace-inbox .inbox-compose-footer {
+    font-size: 11px;
+  }
+  .workspace-inbox .chat-desktop-hint {
+    display: none;
+  }
+  .workspace-inbox .buyer-mobile-send-hint {
+    display: inline;
+  }
+  .workspace-inbox .chat-attach-button svg {
+    display: block;
+  }
+  .workspace-inbox .inbox-compose form {
+    grid-template-columns: 40px minmax(0, 1fr) 44px;
+  }
+  .workspace-inbox .inbox-compose form .chat-attach-button {
+    width: 40px;
+    min-width: 40px;
+  }
+  .workspace-inbox.is-keyboard-open
+    :is(.buyer-chat-prompts, .buyer-chat-privacy, .inbox-compose-footer) {
+    display: none;
+  }
+  .workspace-inbox .buyer-jump-latest {
+    bottom: 130px;
+    right: 12px;
+  }
+}
+@media (max-height: 500px) and (max-width: 1000px) {
+  .workspace-inbox .inbox-chat-header {
+    min-height: 58px;
+    padding-block: 4px;
+  }
+  .workspace-inbox .buyer-chat-privacy,
+  .workspace-inbox .buyer-chat-prompts,
+  .workspace-inbox .inbox-compose-footer {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .workspace-inbox .inbox-thread {
+    transition: none;
+  }
+}
+@media (max-width: 800px), (max-width: 1000px) and (max-height: 500px) {
+  body:has(.workspace-inbox.is-reading-thread) :is(.chat-launcher, .market-chat-window) {
+    display: none;
+  }
+  .workspace-inbox .inbox-chat-header {
+    grid-template-columns: 44px 36px minmax(0, 1fr);
+  }
+  .workspace-inbox .inbox-mobile-back {
+    width: 44px;
+    min-width: 44px;
+  }
+}
+
+.workspace-inbox .inbox-chat-header p span {
+  color: inherit;
+}
+.workspace-inbox .inbox-thread.is-selected .inbox-thread-type {
+  background: transparent;
+  border-color: transparent;
+  color: #5c7665;
+}

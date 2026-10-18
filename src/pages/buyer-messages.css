@@ -1,0 +1,587 @@
+/* Buyer workspace only; supplier inbox and floating product chat keep their layout. */
+.buyer-inbox {
+  --inbox-line: #dfe8e1;
+  color: #203d30;
+}
+.buyer-inbox .inbox-page-heading {
+  align-items: flex-end;
+  margin-bottom: 22px;
+}
+.buyer-inbox .inbox-page-heading h1 {
+  font-size: 32px;
+  letter-spacing: -1px;
+}
+.buyer-inbox .inbox-page-heading p {
+  color: #607266;
+  font-size: 14px;
+}
+.buyer-inbox .inbox-eyebrow {
+  color: #49735b;
+  font-size: 11px;
+}
+.buyer-inbox-browse {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 15px;
+  border: 1px solid #cdded0;
+  border-radius: 12px;
+  color: #24543b;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 650;
+}
+.buyer-inbox .inbox-shell {
+  grid-template-columns: 320px minmax(0, 1fr);
+  height: clamp(600px, 76dvh, 850px);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px #213e2e08;
+}
+.buyer-inbox .inbox-list {
+  background: #fff;
+}
+.buyer-inbox .inbox-list-heading {
+  padding: 16px 16px 10px;
+}
+.buyer-inbox .inbox-list-heading h2 {
+  font-size: 16px;
+}
+.buyer-inbox .inbox-list-heading h2 > span {
+  min-width: 25px;
+  font-size: 12px;
+  border-radius: 7px;
+}
+.buyer-inbox .inbox-list-heading button {
+  width: 44px;
+  height: 44px;
+  color: #40624b;
+}
+.buyer-inbox .inbox-search {
+  margin: 0 16px 12px;
+  min-height: 48px;
+  border-radius: 12px;
+  color: #678571;
+  background: #f5f8f3;
+  padding: 10px 12px;
+}
+.buyer-inbox .inbox-search input {
+  font-size: 16px;
+  line-height: 1.5;
+}
+.buyer-inbox .chat-list-tabs {
+  gap: 6px;
+  padding: 0 16px 12px;
+}
+.buyer-inbox .chat-list-tabs button {
+  min-height: 44px;
+  padding: 8px 11px;
+  font-size: 13px;
+  border-radius: 10px;
+  line-height: 1.5;
+}
+.buyer-inbox .chat-list-tabs button[aria-pressed='true'] {
+  background: #174b36;
+  color: #fff;
+}
+.buyer-inbox .inbox-threads {
+  padding: 0 8px 10px;
+  overscroll-behavior: contain;
+}
+.buyer-inbox .inbox-thread {
+  padding: 15px 10px;
+  gap: 12px;
+  border-radius: 13px;
+  margin: 4px 0;
+  border-color: #eef2ed;
+  background: #fff;
+}
+.buyer-inbox .inbox-thread:hover {
+  background: #f5f8f2;
+  border-color: #d7e5d6;
+}
+.buyer-inbox .inbox-thread.is-selected {
+  border-color: #b6cfba;
+  background: #edf5e9;
+}
+.buyer-inbox .inbox-thread[data-unread='true'] {
+  background: #f5f9f1;
+}
+.buyer-inbox .inbox-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  font-size: 14px;
+  color: #2d6544;
+  background: #e6efdd;
+}
+.buyer-inbox .inbox-thread-title {
+  align-items: flex-start;
+  gap: 7px;
+}
+.buyer-inbox .inbox-thread-title strong {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  white-space: normal;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #274a35;
+  overflow-wrap: anywhere;
+}
+.buyer-inbox .inbox-thread[data-unread='true'] strong {
+  font-weight: 750;
+}
+.buyer-inbox .inbox-thread-title time {
+  font-size: 12px;
+  color: #687d6c;
+  line-height: 1.75;
+}
+.buyer-inbox .inbox-thread-preview {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+  line-height: 1.65;
+  color: #5e7264;
+  margin: 7px 0 9px;
+}
+.buyer-inbox .inbox-thread-type {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: #55735b;
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+.buyer-inbox .inbox-thread-type svg {
+  flex-shrink: 0;
+}
+.buyer-inbox .chat-unread-badge {
+  font-size: 12px;
+  min-width: 23px;
+  min-height: 23px;
+  background: #235a3e;
+  color: #fff;
+}
+.buyer-inbox .inbox-list-footer {
+  font-size: 12px;
+  line-height: 1.6;
+  color: #667a69;
+  justify-content: flex-start;
+  padding: 14px 16px;
+}
+.buyer-inbox .inbox-list-footer svg {
+  flex-shrink: 0;
+}
+.buyer-inbox .inbox-chat {
+  position: relative;
+  background: #f3f6f0;
+}
+.buyer-inbox .inbox-chat-header {
+  padding: 16px 20px;
+  gap: 12px;
+  min-height: 90px;
+}
+.buyer-inbox .inbox-chat-header > div {
+  flex: 1;
+}
+.buyer-inbox .inbox-chat-header h2 {
+  font-size: 16px;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.buyer-inbox .inbox-chat-header p {
+  font-size: 12px;
+  color: #50755b;
+  margin-top: 1px;
+}
+.buyer-inbox .inbox-chat-header p a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+}
+.buyer-inbox .inbox-connection {
+  font-size: 12px;
+  color: #647a66;
+}
+.buyer-inbox .inbox-connection.is-live {
+  color: #356747;
+}
+.buyer-chat-privacy {
+  flex-shrink: 0;
+  padding-inline: 20px;
+  background: #fafcf7;
+  border-bottom: 1px solid #e2eade;
+  color: #60725f;
+  font-size: 12px;
+}
+.buyer-chat-privacy summary {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  min-height: 44px;
+  width: fit-content;
+}
+.buyer-chat-privacy summary::after {
+  content: '+';
+  font-size: 16px;
+  margin-left: 4px;
+}
+.buyer-chat-privacy[open] summary::after {
+  content: '−';
+}
+.buyer-chat-privacy p {
+  padding-bottom: 14px;
+  line-height: 1.7;
+  max-width: 650px;
+}
+.buyer-inbox .inbox-history {
+  padding: 20px;
+  gap: 13px;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+.buyer-inbox .inbox-date-divider {
+  margin: 6px 0 12px;
+}
+.buyer-inbox .inbox-date-divider span {
+  background: #e8eee1;
+  color: #5c735e;
+  font-size: 12px;
+  padding: 5px 10px;
+  border-radius: 20px;
+}
+.buyer-inbox .inbox-date-divider::before,
+.buyer-inbox .inbox-date-divider::after {
+  display: none;
+}
+.buyer-inbox .inbox-message-row {
+  max-width: 85%;
+}
+.buyer-inbox .inbox-bubble {
+  padding: 12px 15px;
+  border-color: #dce6d9;
+  border-radius: 17px 17px 17px 4px;
+  box-shadow: 0 2px 3px #26433104;
+}
+.buyer-inbox .inbox-bubble p {
+  font-size: 15px;
+  line-height: 1.75;
+  color: #2e4636;
+}
+.buyer-inbox .inbox-bubble time {
+  font-size: 11px;
+  color: #617964;
+  margin-top: 6px;
+}
+.buyer-inbox .inbox-message-row.is-own .inbox-bubble {
+  background: #24563d;
+  border-color: #24563d;
+  border-radius: 17px 17px 4px 17px;
+}
+.buyer-inbox .inbox-message-row.is-own .inbox-bubble p {
+  color: #fff;
+}
+.buyer-inbox .inbox-message-row.is-own :is(time, .chat-receipt) {
+  color: #d3e6d4;
+}
+.buyer-inbox .chat-product-card {
+  background: #f7faf3;
+  border-color: #d3e1cf;
+}
+.buyer-inbox .chat-product-card strong {
+  font-size: 14px;
+  color: #31533b;
+}
+.buyer-inbox .chat-product-card small {
+  font-size: 12px;
+  color: #5a715d;
+}
+.buyer-jump-latest {
+  align-self: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 8px 15px;
+  gap: 8px;
+  margin: 2px 0 8px;
+  border-radius: 24px;
+  background: #fff;
+  border: 1px solid #c3d7c2;
+  font-size: 13px;
+  color: #315f40;
+}
+.buyer-inbox .inbox-compose {
+  padding: 8px 16px 12px;
+}
+.buyer-chat-prompts {
+  margin-bottom: 5px;
+}
+.buyer-chat-prompts summary {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 44px;
+  font-size: 13px;
+  color: #527254;
+  cursor: pointer;
+  width: fit-content;
+}
+.buyer-chat-prompts summary::after {
+  content: '+';
+  margin-left: 3px;
+}
+.buyer-chat-prompts[open] summary::after {
+  content: '−';
+}
+.buyer-inbox .chat-quick-replies {
+  margin-bottom: 8px;
+  padding-block: 3px 6px;
+}
+.buyer-inbox .chat-quick-replies button {
+  min-height: 44px;
+  font-size: 13px;
+  color: #31563d;
+}
+.buyer-inbox .inbox-compose form {
+  border-radius: 16px;
+  padding: 7px;
+  background: #f8faf6;
+  border-color: #cdddc9;
+  gap: 8px;
+}
+.buyer-inbox .inbox-compose textarea {
+  font-size: 16px;
+  min-height: 46px;
+  line-height: 1.6;
+  padding: 10px 8px;
+  color: #294b36;
+}
+.buyer-inbox .inbox-compose form button {
+  min-height: 48px;
+  height: 48px;
+  min-width: 48px;
+  border-radius: 12px;
+  padding-inline: 14px;
+  font-size: 14px;
+}
+.buyer-inbox .inbox-compose-footer {
+  font-size: 12px;
+  color: #657967;
+  line-height: 1.5;
+  padding-top: 8px;
+}
+.buyer-inbox .buyer-mobile-send-hint {
+  display: none;
+}
+.buyer-inbox .inbox-chat-footer {
+  font-size: 12px;
+  color: #5d745f;
+  padding: 8px 12px;
+}
+.buyer-inbox .inbox-welcome h2 {
+  font-size: 24px;
+  color: #2b5038;
+}
+.buyer-inbox .inbox-welcome > p,
+.buyer-inbox .inbox-welcome-note {
+  font-size: 13px;
+  color: #63795f;
+}
+.buyer-inbox .inbox-list-empty h3,
+.buyer-inbox .inbox-chat-empty h3 {
+  font-size: 16px;
+  color: #385a3e;
+}
+.buyer-inbox .inbox-list-empty p,
+.buyer-inbox .inbox-chat-empty p {
+  font-size: 14px;
+  color: #657b65;
+}
+.buyer-inbox :is(a, button, summary):focus-visible {
+  outline: 2px solid #36784e;
+  outline-offset: 3px;
+}
+@media (max-width: 1100px) {
+  .buyer-inbox .inbox-shell {
+    grid-template-columns: 280px minmax(0, 1fr);
+  }
+  .buyer-inbox .inbox-chat-header {
+    flex-wrap: wrap;
+  }
+  .buyer-inbox .inbox-connection {
+    margin-left: 56px;
+  }
+}
+@media (max-width: 800px), (max-width: 1000px) and (max-height: 500px) {
+  .buyer-inbox .inbox-page-heading {
+    align-items: center;
+    gap: 12px;
+  }
+  .buyer-inbox .inbox-page-heading h1 {
+    font-size: 28px;
+    margin-bottom: 4px;
+  }
+  .buyer-inbox .inbox-page-heading .inbox-eyebrow {
+    display: none;
+  }
+  .buyer-inbox .inbox-page-heading p {
+    font-size: 13px;
+    max-width: 260px;
+  }
+  .buyer-inbox .inbox-page-heading > .buyer-inbox-browse {
+    font-size: 12px;
+    max-width: 120px;
+    flex-shrink: 0;
+    padding: 9px 10px;
+  }
+  .buyer-inbox .inbox-shell {
+    display: block;
+    height: auto;
+    min-height: 460px;
+    border-radius: 17px;
+  }
+  .buyer-inbox .inbox-list {
+    border: 0;
+    height: auto;
+    min-height: 460px;
+  }
+  .buyer-inbox .inbox-threads {
+    max-height: 65dvh;
+    min-height: 200px;
+  }
+  .buyer-inbox .inbox-chat {
+    display: none;
+  }
+  body:has(.buyer-inbox.is-reading-thread) {
+    overflow: hidden;
+  }
+  body:has(.buyer-inbox.is-reading-thread) :is(.site-header, .site-footer, .topbar),
+  .buyer-dashboard:has(.buyer-inbox.is-reading-thread) > .dashboard-sidebar {
+    display: none;
+  }
+  .buyer-inbox.is-reading-thread {
+    position: fixed;
+    inset-inline: 0;
+    top: var(--buyer-chat-top, 0px);
+    height: var(--buyer-chat-height, 100dvh);
+    z-index: 90;
+    background: #f3f6f0;
+    padding-top: env(safe-area-inset-top);
+    overflow: hidden;
+  }
+  .buyer-inbox.is-reading-thread .inbox-page-heading {
+    display: none;
+  }
+  .buyer-inbox.is-reading-thread .inbox-shell {
+    height: 100%;
+    min-height: 0;
+    border-radius: 0;
+    border: 0;
+    box-shadow: none;
+  }
+  .buyer-inbox .inbox-shell.has-thread .inbox-list {
+    display: none;
+  }
+  .buyer-inbox .inbox-shell.has-thread .inbox-chat {
+    display: flex;
+    height: 100%;
+  }
+  .buyer-inbox .inbox-chat-header {
+    display: grid;
+    grid-template-columns: 44px 38px minmax(0, 1fr);
+    align-items: center;
+    column-gap: 8px;
+    row-gap: 0;
+    padding: 8px 12px;
+    min-height: 82px;
+  }
+  .buyer-inbox .inbox-mobile-back {
+    display: inline-flex;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    color: #28583d;
+  }
+  .buyer-inbox .inbox-chat-header .inbox-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    font-size: 13px;
+    grid-row: span 2;
+  }
+  .buyer-inbox .inbox-chat-header > div {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+  }
+  .buyer-inbox .inbox-chat-header h2 {
+    font-size: 15px;
+  }
+  .buyer-inbox .inbox-chat-header p {
+    font-size: 12px;
+  }
+  .buyer-inbox .inbox-chat-header p a {
+    min-height: 32px;
+  }
+  .buyer-inbox .inbox-connection {
+    grid-column: 2 / 4;
+    margin: 1px 0 0;
+    font-size: 11px;
+  }
+  .buyer-chat-privacy {
+    padding-inline: 16px;
+    font-size: 12px;
+  }
+  .buyer-inbox .inbox-history {
+    padding: 12px;
+    scrollbar-gutter: auto;
+  }
+  .buyer-inbox .inbox-message-row {
+    max-width: 90%;
+  }
+  .buyer-inbox .inbox-bubble {
+    padding: 10px 12px;
+  }
+  .buyer-inbox .inbox-bubble p {
+    font-size: 15px;
+  }
+  .buyer-inbox .inbox-compose {
+    padding: 4px 10px max(10px, env(safe-area-inset-bottom));
+    max-height: 55%;
+    overflow-y: auto;
+  }
+  .buyer-inbox .inbox-compose form button {
+    padding: 0;
+    width: 48px;
+  }
+  .buyer-inbox .inbox-compose form button > span {
+    display: none;
+  }
+  .buyer-inbox .inbox-compose-footer {
+    font-size: 12px;
+  }
+  .buyer-inbox .chat-desktop-hint {
+    display: none;
+  }
+  .buyer-inbox .buyer-mobile-send-hint {
+    display: inline;
+  }
+  .buyer-inbox .inbox-chat-footer {
+    display: none;
+  }
+  .buyer-inbox.is-keyboard-open
+    :is(.buyer-chat-prompts, .buyer-chat-privacy, .inbox-compose-footer) {
+    display: none;
+  }
+}

@@ -5,13 +5,13 @@ A Bangladesh B2B wholesale marketplace built with **React + Vite, TypeScript, Ta
 ## Run
 
 ```sh
-npm install
+npm ci
 cp .env.example .env.local
 # Add VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY from Supabase Cloud.
 npm run dev
 ```
 
-Only `VITE_` variables enter the browser bundle. Never put a secret/service-role key in a `VITE_` variable. `.env.local` is ignored by Git. The connected project URL and public key are already configured for this workspace.
+Only `VITE_` variables enter the browser bundle. Never put a secret/service-role key in a `VITE_` variable. `.env.local` is ignored by Git. Configure your hosted project using the values in `.env.example`; local credentials are not committed.
 
 ## Cloud backend
 
@@ -30,7 +30,7 @@ Read [deployment instructions](docs/DEPLOYMENT.md) and [architecture](docs/ARCHI
 - Responsive catalog, English/Bangla navigation and homepage, BDT formatting, all 64 districts, PostgreSQL full-text search, URL filters, sorting and pagination.
 - Supabase email/password authentication, confirmation callback, password recovery, persistent PKCE sessions and role-based workspaces.
 - Supplier business profile, transactional product/tier management, image uploads, private verification documents and inquiry responses.
-- Buyer favorites, saved suppliers, quotations and participant-only realtime messaging.
+- Buyer favorites, saved suppliers, quotations and private realtime messaging with audited super-admin oversight.
 - Dedicated `/admin` console with super-admin/staff permissions, account suspension, private verification review, all-image product moderation, categories, reports, staff access, platform settings and audit history. See [console guide](docs/ADMIN_CONSOLE.md).
 - RLS on every application table, private storage policies, upload bounds and database-backed inquiry limits.
 - Route-level code splitting, loading/error states, keyboard-accessible controls, JSON-LD product data and build-generated sitemap.
@@ -98,4 +98,9 @@ Product variants, sourcing offers, private customization files, comparison and m
 ## Marketplace growth release
 
 See [Platform improvements](docs/PLATFORM_IMPROVEMENTS.md) for tender bidding, quick sourcing requests, shipping estimates, buyer organizations, CSV tools, private search history, financial reports, public catalog HTML, cloud migrations and deferred provider setup. COD/manual bank remain active; no escrow or automated courier/payment provider is configured.
-# Paikarri
+
+## Publish on Vercel
+
+Import [tawhidislam/Paikarri](https://github.com/tawhidislam/Paikarri) into Vercel. Use **Vite**, **Node 22.x**, install `npm ci`, build `npm run build`, output `dist`. Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` for each deployment environment. `VITE_SITE_URL` is optional: set your real HTTPS custom domain in Production, or leave it unset to use Vercel automatic URLs. Never copy localhost into a Vercel environment. No Supabase secret/service-role key is needed in Vercel.
+
+See [Vercel publishing](docs/VERCEL_PUBLISH.md) for exact settings, Supabase Auth redirects, preview isolation, backend prerequisites and launch checks.

@@ -1,6 +1,6 @@
 import type { Database } from './database.types';
 export type { Json } from './database.types';
-export type Role = 'buyer' | 'supplier' | 'admin';
+export type Role = 'buyer' | 'supplier' | 'admin' | 'super_admin';
 export type Profile = Database['public']['Tables']['profiles']['Row'];
 export type Business = Database['public']['Tables']['businesses']['Row'];
 export type Category = Database['public']['Tables']['categories']['Row'];

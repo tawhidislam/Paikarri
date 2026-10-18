@@ -1,6 +1,7 @@
+import { z } from 'zod';
 import { describe, it, expect } from 'vitest';
 import { authSchema, businessSchema, productSchema, quoteSchema } from '../src/lib/validation';
-import { safeRedirect, validateUpload } from '../src/lib/utils';
+import { safeRedirect, validateUpload, errorMessage, randomUUID } from '../src/lib/utils';
 import { locations } from '../src/lib/locations';
 describe('untrusted input boundaries', () => {
   it('blocks external and protocol-relative auth redirects', () => {
@@ -65,4 +66,18 @@ describe('untrusted input boundaries', () => {
       quoteSchema.safeParse({ quantity: 10, message: 'Please quote delivery to Dhaka.' }).success,
     ).toBe(true);
   });
+});
+
+it('shows validation messages without raw Zod JSON', () => {
+  const result = z
+    .object({ reason: z.string().min(5, 'Please explain your decision.') })
+    .safeParse({ reason: '' });
+  if (!result.success) expect(errorMessage(result.error)).toBe('Please explain your decision.');
+  expect(errorMessage(new Error('Ordinary error'))).toBe('Ordinary error');
+});
+
+it('generates valid RFC4122 v4 UUIDs even when browser crypto.randomUUID is undefined', () => {
+  const uuid = randomUUID();
+  expect(z.string().uuid().safeParse(uuid).success).toBe(true);
+  expect(uuid).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
 });

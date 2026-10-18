@@ -1,0 +1,2 @@
+-- Preserve every existing super-admin-only audit scope when adding sourcing oversight.
+alter policy audit_read on public.admin_audit_logs using(private.is_admin() and(private.is_super_admin() or(action not like 'homepage_content.%' and action not like 'verification.%' and action not like 'supplier_verifications.%' and action not like 'conversation_monitor.%' and action not like 'supplier_management.%' and action not like 'supplier_warning.%' and action not like 'supplier_renewal.%' and action not like 'sourcing_file.%' and action not like 'sourcing_request.%')));

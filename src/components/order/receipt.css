@@ -1,0 +1,362 @@
+.order-receipt {
+  display: none;
+}
+@media print {
+  @page receipt {
+    size: A4;
+    margin: 15mm 14mm 18mm;
+    @bottom-left {
+      content: 'Paikarii.com';
+      font-family: sans-serif;
+      font-size: 8pt;
+      color: #68766e;
+    }
+    @bottom-right {
+      content: counter(page) ' / ' counter(pages);
+      font-family: sans-serif;
+      font-size: 8pt;
+      color: #68766e;
+    }
+  }
+  body:has(.order-receipt) {
+    background: #fff !important;
+    color: #23382c;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  body:has(.order-receipt) .site-header,
+  body:has(.order-receipt) .topbar,
+  body:has(.order-receipt) .site-footer,
+  body:has(.order-receipt) .dashboard-sidebar,
+  body:has(.order-receipt) .admin-sidebar,
+  body:has(.order-receipt) .admin-topbar,
+  body:has(.order-receipt) .admin-header,
+  body:has(.order-receipt) .admin-footer,
+  body:has(.order-receipt) .market-chat-window,
+  body:has(.order-receipt) .chat-launcher,
+  body:has(.order-receipt) .skip-link {
+    display: none !important;
+  }
+  body:has(.order-receipt)
+    :is(
+      .container,
+      .dashboard-layout,
+      .dashboard-main,
+      .admin-shell,
+      .admin-workspace,
+      .admin-main,
+      .orders-page,
+      .order-detail
+    ) {
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 0 !important;
+    border: 0 !important;
+    background: white !important;
+  }
+  body:has(.order-receipt) .dashboard-main > :not(.order-detail) {
+    display: none !important;
+  }
+  .order-detail > :not(.order-receipt) {
+    display: none !important;
+  }
+  .order-detail > .order-receipt {
+    display: block !important;
+    page: receipt;
+    font-family: 'DM Sans Variable', 'Noto Sans Bengali Variable', sans-serif;
+    font-size: 9pt;
+    line-height: 1.5;
+    color: #23382c;
+  }
+  .order-receipt * {
+    box-sizing: border-box;
+  }
+  .order-receipt h2 {
+    margin: 0 0 7px;
+    font-size: 8pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.075em;
+    color: #6b7a70;
+  }
+  .pr-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 15mm;
+    padding-bottom: 8mm;
+    border-bottom: 2px solid #1c533c;
+    break-inside: avoid;
+  }
+  .pr-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #17483b;
+    font-size: 27pt;
+    font-weight: 750;
+    letter-spacing: -0.065em;
+    line-height: 1.15;
+    white-space: nowrap;
+  }
+  .pr-brand-icon {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border: 1.6px solid #17483b;
+    border-radius: 8px;
+    flex-shrink: 0;
+  }
+  .pr-domain {
+    font-size: 0.65em;
+    letter-spacing: -0.04em;
+  }
+  .pr-tagline {
+    margin: 9px 0 6px;
+    color: #647468;
+    font-size: 8pt;
+  }
+  .pr-support {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    color: #647468;
+    font-size: 8pt;
+    overflow-wrap: anywhere;
+  }
+  .pr-document {
+    text-align: right;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-top: 2px;
+  }
+  .pr-kicker {
+    color: #65796b;
+    font-size: 8pt;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+  }
+  .pr-document > strong {
+    font-size: 18pt;
+    letter-spacing: -0.035em;
+    color: #204c37;
+  }
+  .pr-document > span:last-child {
+    font-size: 8pt;
+    color: #68766c;
+    max-width: 65mm;
+  }
+  .pr-status {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6mm;
+    padding: 5mm;
+    margin: 6mm 0;
+    border: 1px solid #dce5d9;
+    border-radius: 6px;
+    background: #f4f7ef;
+    break-inside: avoid;
+  }
+  .pr-status div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .pr-status span {
+    font-size: 7.5pt;
+    color: #6b7a70;
+  }
+  .pr-status strong {
+    font-size: 8.5pt;
+    font-weight: 650;
+  }
+  .pr-parties {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12mm;
+    margin: 7mm 0 8mm;
+    break-inside: avoid;
+  }
+  .pr-parties section,
+  .pr-parties address {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    overflow-wrap: anywhere;
+    font-style: normal;
+  }
+  .pr-parties strong {
+    font-size: 10pt;
+  }
+  .pr-parties .pr-label {
+    margin: 12px 0 0;
+    color: #718074;
+    font-size: 7.5pt;
+  }
+  .order-receipt .pr-items {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    min-width: 0;
+    margin: 0;
+    font-size: 8.5pt;
+  }
+  .pr-items caption {
+    text-align: left;
+    font-size: 10pt;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .pr-items thead {
+    display: table-header-group;
+  }
+  .order-receipt .pr-items th {
+    padding: 9px 7px;
+    text-align: left;
+    white-space: normal;
+    background: #244e39;
+    color: #fff;
+    font-size: 7.5pt;
+    font-weight: 600;
+  }
+  .order-receipt .pr-items td {
+    padding: 12px 7px;
+    border-bottom: 1px solid #e1e7dd;
+    vertical-align: top;
+    overflow-wrap: anywhere;
+  }
+  .pr-items tr {
+    break-inside: avoid;
+  }
+  .pr-items td:nth-child(1) {
+    color: #748277;
+  }
+  .pr-items th:nth-child(n + 3),
+  .pr-items td:nth-child(n + 3) {
+    text-align: right;
+  }
+  .pr-items td small {
+    display: block;
+    margin-top: 4px;
+    font-size: 7.5pt;
+    color: #718074;
+  }
+  .pr-items td > strong {
+    font-weight: 650;
+  }
+  .pr-settlement {
+    display: grid;
+    grid-template-columns: 1fr 78mm;
+    gap: 12mm;
+    margin: 7mm 0;
+    break-inside: avoid;
+  }
+  .pr-payment {
+    padding-top: 3px;
+  }
+  .pr-payment > strong {
+    font-size: 9pt;
+  }
+  .pr-payment p {
+    margin: 6px 0;
+    font-size: 8pt;
+    color: #68766c;
+  }
+  .pr-payment .pr-provisional {
+    margin-top: 12px;
+    padding-left: 10px;
+    border-left: 2px solid #b0bd9b;
+  }
+  .pr-totals {
+    margin: 0;
+  }
+  .pr-totals > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 0;
+  }
+  .pr-totals dt {
+    color: #68766c;
+    font-size: 8.5pt;
+  }
+  .pr-totals dd {
+    margin: 0;
+    text-align: right;
+    font-weight: 600;
+    font-size: 9pt;
+  }
+  .pr-totals .pr-grand-total {
+    margin-top: 5px;
+    padding: 13px 12px;
+    border-top: 2px solid #244e39;
+    background: #edf3e6;
+  }
+  .pr-grand-total dt {
+    color: #244e39;
+    font-weight: 700;
+  }
+  .pr-grand-total dd {
+    font-size: 14pt;
+    color: #244e39;
+    letter-spacing: -0.03em;
+  }
+  .pr-notes {
+    margin-top: 7mm;
+    padding: 5mm;
+    background: #f8f9f5;
+    border: 1px solid #e5eadd;
+    border-radius: 5px;
+  }
+  .pr-notes h2 {
+    break-after: avoid;
+  }
+  .pr-notes p {
+    font-size: 8pt;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    margin: 5px 0;
+  }
+  .pr-payment-history {
+    margin-top: 6mm;
+  }
+  .pr-payment-history h2 {
+    break-after: avoid;
+  }
+  .pr-payment-history > div {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 3px 10px;
+    padding: 9px 0;
+    border-bottom: 1px solid #e1e7dd;
+    break-inside: avoid;
+  }
+  .pr-payment-history > div > span:last-of-type,
+  .pr-payment-history small {
+    grid-column: 1 / -1;
+    font-size: 7.5pt;
+    color: #718074;
+    overflow-wrap: anywhere;
+  }
+  .pr-footer {
+    margin-top: 9mm;
+    padding-top: 5mm;
+    border-top: 1px solid #dce5d9;
+    break-inside: avoid;
+    font-size: 7.5pt;
+    color: #748075;
+  }
+  .pr-footer > strong {
+    font-weight: 600;
+    color: #3b6147;
+    font-size: 8.5pt;
+  }
+  .pr-footer p {
+    margin: 5px 0;
+  }
+}

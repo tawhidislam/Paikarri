@@ -23,10 +23,11 @@ export function State({
   );
 }
 export function Notice({ error, success }: { error?: unknown; success?: string }) {
+  const tr = useT();
   return error ? (
     <div role="alert" className="notice error">
       <AlertCircle size={18} />
-      {errorMessage(error)}
+      {tr(errorMessage(error))}
     </div>
   ) : success ? (
     <div role="status" className="notice success">
@@ -41,18 +42,20 @@ export function SectionTitle({
   description,
   to,
   label = 'View all',
+  heading: Heading = 'h2',
 }: {
   eyebrow?: string;
   title: string;
   description?: string;
   to?: string;
   label?: string;
+  heading?: 'h1' | 'h2';
 }) {
   return (
     <div className="section-title">
       <div>
         {eyebrow && <span className="eyebrow">{eyebrow}</span>}
-        <h2>{title}</h2>
+        <Heading>{title}</Heading>
         {description && <p>{description}</p>}
       </div>
       {to && (
@@ -83,7 +86,7 @@ export function Field({
 }
 export function useTitle(title: string) {
   useEffect(() => {
-    document.title = `${title} | Paikari`;
+    document.title = `${title} | Paikarii.com`;
   }, [title]);
 }
 export function ScrollTop() {

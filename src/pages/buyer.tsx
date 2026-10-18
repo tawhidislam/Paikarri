@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { z } from 'zod';
 import { db } from '@/lib/supabase';
+import { participantContext } from '@/lib/admin-api';
 import { useAuth } from '@/lib/auth';
 import { hydrate, businesses } from '@/lib/catalog';
 import { money } from '@/lib/utils';
@@ -117,13 +118,13 @@ export function Quotations() {
         .order('created_at', { ascending: false });
       if (error) throw error;
       const [p, r] = await Promise.all([
-        db().from('products').select('id,name'),
+        participantContext(),
         db().from('quotation_responses').select('*'),
       ]);
-      if (p.error || r.error) throw p.error ?? r.error;
+      if (r.error) throw r.error;
       return data.map((q) => ({
         ...q,
-        product: p.data.find((p) => p.id === q.product_id),
+        product: p.products.find((p) => p.id === q.product_id),
         response: r.data.find((r) => r.request_id === q.id),
       }));
     },
@@ -149,6 +150,7 @@ export function Quotations() {
   });
   return (
     <>
+      <Link to="/dashboard/requests">{tr('Sourcing requests')} →</Link>
       <SectionTitle
         title={tr(
           role === 'supplier' ? 'New inquiries. New possibilities.' : 'Your quotation requests.',

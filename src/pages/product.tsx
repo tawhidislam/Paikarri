@@ -1,36 +1,34 @@
+import { ShippingCalculator } from '@/components/growth/shipping';
+import { ProductTools } from '@/components/growth/product-tools';
+import { ProductGallery } from '@/components/product/gallery';
+import { CompareButton } from '@/components/product/compare-button';
+import { ProductDelivery } from '@/components/product/delivery';
+import { ProductReviews } from '@/components/product/reviews';
+import { Recommendations } from '@/components/product/recommendations';
+import { SaveSupplier } from '@/components/save-supplier';
+import { formatQuantity, formatUnit } from '@/lib/units';
+import './product.css';
+import { OrderPurchase } from '@/components/order-purchase';
+import { ChatButton } from '@/components/marketplace-chat';
 import { useT } from '@/lib/i18n';
 import { useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import type { z } from 'zod';
-import {
-  MapPin,
-  ShieldCheck,
-  ArrowUpRight,
-  MessageSquare,
-  Flag,
-  Check,
-  Package,
-} from 'lucide-react';
+import { MapPin, ShieldCheck, ArrowUpRight, Flag, Check, Package } from 'lucide-react';
 import { db, configured } from '@/lib/supabase';
 import { hydrate } from '@/lib/catalog';
 import { useAuth } from '@/lib/auth';
 import { useLocale } from '@/lib/i18n';
-import { quoteSchema } from '@/lib/validation';
 import { money } from '@/lib/utils';
-import { ProductImage, SaveProduct } from '@/components/product-card';
 import { Button } from '@/components/ui/button';
-import { Field, Notice, State, useTitle } from '@/components/shared';
+import { Notice, State, useTitle } from '@/components/shared';
 export default function ProductPage() {
   const tr = useT();
   const { id } = useParams();
   const { locale, t } = useLocale();
   const { session, role } = useAuth();
-  const navigate = useNavigate();
-  const [active, setActive] = useState(0);
-  const [quoteOpen, setQuoteOpen] = useState(false);
+  const [shippingSubtotal, setShippingSubtotal] = useState(0);
+  const [variantImage, setVariantImage] = useState<string | null>(null);
   const [reportOpen, setReportOpen] = useState(false);
   const [report, setReport] = useState('');
   const item = useQuery({
@@ -38,7 +36,7 @@ export default function ProductPage() {
     enabled: configured,
     queryFn: async () => {
       const [{ data, error }, images, tiers] = await Promise.all([
-        db().from('products').select('*').eq('id', id!).eq('status', 'approved').maybeSingle(),
+        db().rpc('public_products').eq('id', id!).maybeSingle(),
         db().from('product_images').select('*').eq('product_id', id!).order('position'),
         db().from('product_price_tiers').select('*').eq('product_id', id!).order('min_quantity'),
       ]);
@@ -49,58 +47,6 @@ export default function ProductPage() {
     },
   });
   useTitle(item.data?.p.name ?? 'Product');
-  const form = useForm<z.infer<typeof quoteSchema>>({
-    resolver: zodResolver(quoteSchema),
-    defaultValues: { quantity: 1, message: '' },
-  });
-  const sendQuote = useMutation({
-    mutationFn: async (v: z.infer<typeof quoteSchema>) => {
-      if (v.quantity < item.data!.p.moq) throw new Error(`Minimum order is ${item.data!.p.moq}.`);
-      const { error } = await db()
-        .from('quotation_requests')
-        .insert({
-          ...v,
-          buyer_id: session!.user.id,
-          business_id: item.data!.p.business_id,
-          product_id: id!,
-        });
-      if (error) throw error;
-    },
-  });
-  const contact = useMutation({
-    mutationFn: async () => {
-      const bid = item.data!.p.business_id;
-      let { data, error } = await db()
-        .from('conversations')
-        .select('id')
-        .eq('buyer_id', session!.user.id)
-        .eq('business_id', bid)
-        .maybeSingle();
-      if (error) throw error;
-      if (!data) {
-        const result = await db()
-          .from('conversations')
-          .insert({ buyer_id: session!.user.id, business_id: bid })
-          .select('id')
-          .single();
-        if (result.error?.code === '23505') {
-          const existing = await db()
-            .from('conversations')
-            .select('id')
-            .eq('buyer_id', session!.user.id)
-            .eq('business_id', bid)
-            .single();
-          data = existing.data;
-          error = existing.error;
-        } else {
-          data = result.data;
-          error = result.error;
-        }
-        if (error) throw error;
-      }
-      navigate(`/dashboard/messages?thread=${data!.id}`);
-    },
-  });
   const sendReport = useMutation({
     mutationFn: async () => {
       if (report.trim().length < 10 || report.length > 2000)
@@ -114,8 +60,11 @@ export default function ProductPage() {
   if (item.isLoading) return <State title={tr('Loading product\u2026')} />;
   if (item.error)
     return (
-      <div className="container page-content">
+      <div className="container page-content pd-page">
         <Notice error={item.error} />
+        <Button variant="outline" onClick={() => void item.refetch()}>
+          {tr('Try again')}
+        </Button>
       </div>
     );
   if (!item.data)
@@ -126,7 +75,7 @@ export default function ProductPage() {
         action={<Link to="/products">{tr('Browse products')}</Link>}
       />
     );
-  const { p, images, tiers } = item.data;
+  const { p, images } = item.data;
   const canBuy = role === 'buyer';
   const structured = {
     '@context': 'https://schema.org',
@@ -144,38 +93,31 @@ export default function ProductPage() {
     },
   };
   return (
-    <div className="container page-content">
+    <div className="container page-content pd-page">
       <script type="application/ld+json">
         {JSON.stringify(structured).replace(/</g, '\\u003c')}
       </script>
       <div className="breadcrumb">
         <Link to="/products">{tr('Products')}</Link>
         <span>/</span>
-        <Link to={`/products?category=${p.category?.slug}`}>{p.category?.name}</Link>
+        <Link to={`/products?category=${p.category?.slug}`}>
+          {locale === 'bn' && p.category?.name_bn ? p.category.name_bn : p.category?.name}
+        </Link>
         <span>/</span>
-        {p.name}
+        {locale === 'bn' && p.name_bn ? p.name_bn : p.name}
       </div>
       <div className="product-detail">
-        <div>
-          <div className="detail-image">
-            <ProductImage path={images[active]?.path} alt={p.name} />
-            <SaveProduct id={p.id} />
-          </div>
-          <div className="image-thumbs">
-            {images.map((image, i) => (
-              <button
-                key={image.id}
-                className={i === active ? 'active' : ''}
-                onClick={() => setActive(i)}
-                aria-label={`View product image ${i + 1}`}
-              >
-                <ProductImage path={image.path} alt={`${p.name} view ${i + 1}`} />
-              </button>
-            ))}
-          </div>
-        </div>
+        <ProductGallery
+          key={p.id}
+          images={images}
+          selectedImage={variantImage}
+          name={locale === 'bn' && p.name_bn ? p.name_bn : p.name}
+          id={p.id}
+        />
         <div className="detail-copy">
-          <span className="eyebrow">{p.category?.name}</span>
+          <span className="eyebrow">
+            {locale === 'bn' && p.category?.name_bn ? p.category.name_bn : p.category?.name}
+          </span>
           <h1>{locale === 'bn' && p.name_bn ? p.name_bn : p.name}</h1>
           {p.business?.verified && (
             <span className="verified-label">
@@ -185,71 +127,31 @@ export default function ProductPage() {
           )}
           <div className="detail-price">
             {money(p.price, locale)}
-            <small> / {p.unit}</small>
+            <small> / {formatUnit(p.unit, 1, locale)}</small>
             <span>{tr('Wholesale starting price')}</span>
           </div>
           <div className="detail-facts">
             <div>
               <small>{tr('Minimum order')}</small>
-              <strong>
-                {p.moq} {p.unit}
-                {'s'}
-              </strong>
+              <strong>{formatQuantity(p.moq, p.unit, locale)}</strong>
             </div>
             <div>
-              <small>{tr('Available stock / capacity')}</small>
-              <strong>
-                {p.stock.toLocaleString()} {p.unit}
-                {'s'}
-              </strong>
+              <small>{tr('Available stock')}</small>
+              <strong>{formatQuantity(p.stock, p.unit, locale)}</strong>
             </div>
           </div>
-          {tiers.length > 0 && (
-            <div className="tier-table">
-              <h3>{tr('Buy more, source smarter.')}</h3>
-              <div>
-                {tiers.map((t) => (
-                  <span key={t.id}>
-                    <small>
-                      {t.min_quantity}
-                      {'+'}
-                      {p.unit}
-                      {'s'}
-                    </small>
-                    <strong>{money(t.price, locale)}</strong>
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
+          <OrderPurchase
+            key={p.id}
+            product={p}
+            onVariantImage={setVariantImage}
+            onSubtotalChange={setShippingSubtotal}
+          />
           <div className="detail-actions">
             {!session ? (
-              <Button asChild>
-                <Link to={`/auth/login?next=/products/${p.id}`}>
-                  {tr('Sign in to contact supplier')}
-                  <ArrowUpRight size={16} />
-                </Link>
-              </Button>
+              <ChatButton business={p.business_id} product={p.id} />
             ) : canBuy ? (
               <>
-                <Button
-                  variant="accent"
-                  onClick={() => {
-                    setQuoteOpen(!quoteOpen);
-                    form.setValue('quantity', p.moq);
-                  }}
-                >
-                  {t.quote}
-                  <ArrowUpRight size={16} />
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => contact.mutate()}
-                  disabled={contact.isPending}
-                >
-                  <MessageSquare size={17} />
-                  {t.contact}
-                </Button>
+                <ChatButton business={p.business_id} product={p.id} />
               </>
             ) : (
               <p className="muted">
@@ -257,65 +159,44 @@ export default function ProductPage() {
               </p>
             )}
           </div>
-          <Notice error={contact.error} />
-          {quoteOpen && (
-            <form
-              className="form-stack quote-form"
-              onSubmit={form.handleSubmit((v) => sendQuote.mutate(v))}
-            >
-              <h3>{tr('Tell the supplier what you need.')}</h3>
-              <Field
-                label={`Quantity (minimum ${p.moq})`}
-                error={form.formState.errors.quantity?.message}
-              >
-                <input
-                  type="number"
-                  min={p.moq}
-                  {...form.register('quantity', { valueAsNumber: true })}
-                />
-              </Field>
-              <Field label={tr('Your requirements')} error={form.formState.errors.message?.message}>
-                <textarea
-                  placeholder={tr(
-                    'Include specifications, delivery location, and your timeline\u2026',
-                  )}
-                  {...form.register('message')}
-                />
-              </Field>
-              <Notice
-                error={sendQuote.error}
-                success={
-                  sendQuote.isSuccess
-                    ? tr('Quotation requested. Track the response in your dashboard.')
-                    : undefined
-                }
-              />
-              <Button disabled={sendQuote.isPending || sendQuote.isSuccess}>
-                {tr('Send request')}
-              </Button>
-            </form>
-          )}
+          <CompareButton id={p.id} />
           <div className="detail-supplier">
             <span className="supplier-avatar">{p.business?.name.slice(0, 2)}</span>
             <div>
               <Link to={`/suppliers/${p.business_id}`}>
-                <strong>{p.business?.name}</strong>
+                <strong>
+                  {locale === 'bn' && p.business?.name_bn ? p.business.name_bn : p.business?.name}
+                </strong>
                 <ArrowUpRight size={15} />
               </Link>
               <p>
                 <MapPin size={13} />
-                {p.business?.district}
+                {tr(p.business?.district ?? '')}
                 {','}
-                {p.business?.division}
+                {tr(p.business?.division ?? '')}
               </p>
             </div>
           </div>
+          {p.business?.description && <p className="muted">{p.business.description}</p>}
+          {p.business?.verified && (
+            <p className="pd-verification-note">
+              {tr(
+                'Owner identity, trade licence and bank details have been reviewed. Confirm product quality and delivery terms directly.',
+              )}
+            </p>
+          )}
+          <SaveSupplier id={p.business_id} />
           <span className="sourcing-note">
             <Check size={14} />
-            {tr('Direct supplier contact \u00B7 No online payment required')}
+            {tr('Order with supplier confirmation · Cash on delivery or bank transfer')}
           </span>
         </div>
       </div>
+      <ProductDelivery id={p.id} />
+      <section className="pd-section">
+        <ShippingCalculator business={p.business_id} subtotal={shippingSubtotal} />
+      </section>
+      <ProductTools product={p} />
       <div className="product-description">
         <div>
           <h2>{tr('About this product')}</h2>
@@ -345,6 +226,8 @@ export default function ProductPage() {
           <Link to="/info/trust">{tr('Read our sourcing guide \u2197')}</Link>
         </aside>
       </div>
+      <ProductReviews id={p.id} />
+      <Recommendations product={p} />
       {session && (
         <div className="report-area">
           <button onClick={() => setReportOpen(!reportOpen)}>

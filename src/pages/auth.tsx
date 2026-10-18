@@ -1,6 +1,6 @@
 import { useT } from '@/lib/i18n';
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -9,8 +9,10 @@ import { db, configured } from '@/lib/supabase';
 import { safeRedirect } from '@/lib/utils';
 import { Field, Notice, State, useTitle } from '@/components/shared';
 import { Button } from '@/components/ui/button';
+import { PasswordInput } from '@/components/password-input';
 export default function AuthPage() {
   const tr = useT();
+  const adminLogin = useLocation().pathname === '/admin/login';
   const { mode = 'login' } = useParams();
   const [params] = useSearchParams();
   const navigate = useNavigate();
@@ -114,7 +116,7 @@ export default function AuthPage() {
           password: values.password,
         });
         if (error) throw error;
-        navigate(safeRedirect(params.get('next')));
+        navigate(adminLogin ? '/admin' : safeRedirect(params.get('next')));
       }
     } catch (e) {
       setError(e);
@@ -140,7 +142,9 @@ export default function AuthPage() {
         </div>
       </div>
       <div className="auth-card" key={mode}>
-        <span className="eyebrow">{tr('WELCOME TO PAIKARI')}</span>
+        <span className="eyebrow">
+          {tr(adminLogin ? 'PLATFORM ADMINISTRATION' : 'WELCOME TO PAIKARII.COM')}
+        </span>
         <h2>
           {tr(
             registerMode
@@ -179,8 +183,9 @@ export default function AuthPage() {
           )}
           {!forgot && (
             <Field label={tr('Password')} error={form.formState.errors.password?.message}>
-              <input
-                type="password"
+              <PasswordInput
+                key={mode}
+                aria-label={tr('Password')}
                 autoComplete={registerMode || reset ? 'new-password' : 'current-password'}
                 {...form.register('password')}
               />
@@ -214,7 +219,7 @@ export default function AuthPage() {
             </>
           ) : (
             <>
-              {tr('New to Paikari?')} <Link to="/auth/register">{tr('Join free')}</Link>
+              {tr('New to Paikarii.com?')} <Link to="/auth/register">{tr('Join free')}</Link>
             </>
           )}
         </div>

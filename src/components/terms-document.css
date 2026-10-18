@@ -1,0 +1,150 @@
+.terms-page {
+  padding-block: 40px 64px;
+}
+.terms-document {
+  max-width: 860px;
+  margin-inline: auto;
+  color: #294335;
+  overflow-wrap: anywhere;
+}
+.terms-document-header {
+  border-bottom: 1px solid #e1e8df;
+  padding-bottom: 26px;
+}
+.terms-document h1 {
+  font-size: clamp(28px, 4vw, 44px);
+  line-height: 1.25;
+  margin-block: 16px;
+  letter-spacing: -0.8px;
+}
+.terms-document .terms-intro,
+.terms-section p {
+  font-size: 15px;
+  line-height: 1.9;
+  white-space: pre-wrap;
+}
+.terms-document .terms-intro {
+  color: #536959;
+}
+.terms-effective {
+  color: #5b705f;
+  font-size: 13px;
+  margin-bottom: 18px;
+}
+.terms-contents {
+  background: #f1f5ed;
+  border: 1px solid #e0e8d9;
+  border-radius: 14px;
+  padding: 20px 24px;
+  margin-block: 26px;
+}
+.terms-contents strong {
+  font-size: 14px;
+}
+.terms-contents ol {
+  list-style: decimal;
+  padding-left: 22px;
+  margin-top: 10px;
+}
+.terms-contents a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 14px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.terms-section {
+  padding-block: 18px;
+  scroll-margin-top: 24px;
+}
+.terms-section h2 {
+  font-size: 21px;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+.terms-back {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  max-width: 860px;
+  margin: 28px auto 0;
+  font-size: 14px;
+}
+.terms-page :is(a, button):focus-visible {
+  outline: 2px solid #24553b;
+  outline-offset: 4px;
+}
+.terms-editor-section {
+  border-top: 1px solid #e0e7dc;
+  padding-top: 22px;
+}
+.terms-editor-section > header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.terms-editor textarea {
+  min-height: 150px;
+  resize: vertical;
+}
+.terms-editor .table-actions {
+  flex-wrap: wrap;
+}
+.terms-editor .table-actions > a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.terms-editor .table-actions :is(button, a) {
+  min-height: 44px;
+  min-width: 44px;
+  font-size: 13px;
+  white-space: normal;
+}
+.terms-editor :is(input, textarea, select) {
+  font-size: 16px;
+  min-height: 44px;
+}
+.terms-editor .status-badge {
+  font-size: 12px;
+}
+.terms-preview {
+  background: #fff;
+  border: 1px solid #dbe5d7;
+  border-radius: 14px;
+  padding: clamp(16px, 3vw, 32px);
+  margin-block: 24px;
+}
+.terms-history {
+  margin-block: 12px;
+  padding: 12px;
+  border: 1px solid #dfe6dc;
+  border-radius: 8px;
+}
+.terms-history summary {
+  min-height: 44px;
+  cursor: pointer;
+  padding-block: 10px;
+}
+@media (max-width: 600px) {
+  .terms-page {
+    padding-block: 24px 40px;
+  }
+  .terms-document .terms-intro,
+  .terms-section p {
+    font-size: 14px;
+  }
+  .terms-contents {
+    padding: 16px;
+  }
+  .terms-section h2 {
+    font-size: 19px;
+  }
+  .terms-editor .table-actions > button {
+    min-height: 44px;
+  }
+}

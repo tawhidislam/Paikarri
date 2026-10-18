@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import { usePlatformSettings } from './platform';
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 const en = {
   tagline: 'Bangladesh, in business.',
   search: 'What are you sourcing today?',
@@ -18,12 +19,12 @@ const en = {
   popular: 'Popular searches',
   featured: 'Explore by category',
   featuredSub: 'Find the right products for your business.',
-  trending: 'Discover your next bestseller',
-  trendingSub: 'Wholesale possibilities, straight from the source.',
+  trending: 'Featured wholesale products',
+  trendingSub: 'Compare prices, minimum orders, and suppliers for your business.',
   viewAll: 'View all products',
   verified: 'Meet your next business partner',
   verifiedSub: 'Connect with verified businesses across Bangladesh.',
-  newArrivals: 'Fresh finds for your shelves',
+  newArrivals: 'New arrivals',
   deals: 'More value in every order',
   save: 'Save product',
   moq: 'Min. order',
@@ -36,7 +37,7 @@ const en = {
   ctaTitle: 'Made in Bangladesh.\nReady for your business.',
   ctaBody:
     'Put your business in front of bulk buyers. Create your supplier profile and start building new connections.',
-  ctaButton: 'Start selling on Paikari',
+  ctaButton: 'Start selling on Paikarii.com',
   footer: 'Connecting Bangladesh’s businesses, one opportunity at a time.',
   loading: 'Loading…',
   contact: 'Contact supplier',
@@ -45,10 +46,10 @@ const en = {
   filters: 'Filters',
   clear: 'Clear filters',
   home: 'Home',
-  about: 'About Paikari',
+  about: 'About Paikarii.com',
   support: 'Help & support',
   privacy: 'Privacy policy',
-  terms: 'Terms of use',
+  terms: 'Terms & Conditions',
 };
 const bn: typeof en = {
   tagline: 'বাংলাদেশের ব্যবসার সঙ্গী।',
@@ -69,8 +70,8 @@ const bn: typeof en = {
   popular: 'জনপ্রিয় অনুসন্ধান',
   featured: 'বিভাগ অনুযায়ী খুঁজুন',
   featuredSub: 'আপনার ব্যবসার জন্য সঠিক পণ্য খুঁজে নিন।',
-  trending: 'আপনার পরবর্তী সেরা পণ্য',
-  trendingSub: 'সরাসরি উৎপাদকের কাছ থেকে পাইকারি পণ্য।',
+  trending: 'বাছাইকৃত পাইকারি পণ্য',
+  trendingSub: 'আপনার ব্যবসার জন্য দাম, সর্বনিম্ন অর্ডার ও সরবরাহকারী তুলনা করুন।',
   viewAll: 'সব পণ্য দেখুন',
   verified: 'আপনার ব্যবসার নতুন সঙ্গী',
   verifiedSub: 'বাংলাদেশের যাচাইকৃত ব্যবসার সাথে যুক্ত হোন।',
@@ -87,7 +88,7 @@ const bn: typeof en = {
   ctaTitle: 'বাংলাদেশে তৈরি।\nআপনার ব্যবসার জন্য।',
   ctaBody:
     'পাইকারি ক্রেতাদের কাছে আপনার ব্যবসা তুলে ধরুন। সরবরাহকারী প্রোফাইল তৈরি করে নতুন যোগাযোগ শুরু করুন।',
-  ctaButton: 'পাইকারিতে বিক্রি শুরু করুন',
+  ctaButton: 'Paikarii.com-এ বিক্রি শুরু করুন',
   footer: 'বাংলাদেশের ব্যবসাগুলোকে যুক্ত করছি, এক সুযোগ থেকে আরেক সুযোগে।',
   loading: 'লোড হচ্ছে…',
   contact: 'যোগাযোগ করুন',
@@ -96,24 +97,35 @@ const bn: typeof en = {
   filters: 'ফিল্টার',
   clear: 'ফিল্টার মুছুন',
   home: 'হোম',
-  about: 'পাইকারি সম্পর্কে',
+  about: 'Paikarii.com সম্পর্কে',
   support: 'সাহায্য ও সহায়তা',
   privacy: 'গোপনীয়তা নীতি',
   terms: 'ব্যবহারের শর্ত',
 };
 const LocaleContext = createContext({ locale: 'en' as 'en' | 'bn', t: en, toggle: () => {} });
 export function LocaleProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocale] = useState<'en' | 'bn'>(() =>
-    localStorage.getItem('paikari-locale') === 'bn' ? 'bn' : 'en',
-  );
+  const platform = usePlatformSettings();
+  const [preferred, setLocale] = useState<'en' | 'bn' | null>(() => {
+    const stored = localStorage.getItem('paikari-locale');
+    return stored === 'en' || stored === 'bn' ? stored : null;
+  });
+  const locale = preferred ?? platform.data?.default_locale ?? 'en';
+  useEffect(() => {
+    document.documentElement.lang = locale;
+  }, [locale]);
   return (
     <LocaleContext.Provider
       value={{
         locale,
-        t: locale === 'bn' ? bn : en,
+        t: {
+          ...(locale === 'bn' ? bn : en),
+          tagline:
+            (locale === 'bn' ? platform.data?.tagline_bn : platform.data?.tagline_en) ??
+            (locale === 'bn' ? bn.tagline : en.tagline),
+        },
         toggle: () =>
-          setLocale((l) => {
-            const next = l === 'en' ? 'bn' : 'en';
+          setLocale(() => {
+            const next = locale === 'en' ? 'bn' : 'en';
             localStorage.setItem('paikari-locale', next);
             document.documentElement.lang = next;
             return next;

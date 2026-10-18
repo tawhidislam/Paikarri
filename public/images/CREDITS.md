@@ -1,1 +1,3 @@
 Editorial category and hero photography from Unsplash, downloaded from images.unsplash.com on 2026-10-16. These images illustrate sourcing categories and interiors; they do not represent marketplace suppliers or products. Image identifiers are preserved in filenames. Unsplash license: https://unsplash.com/license. Fonts are bundled from Fontsource (DM Sans, Manrope, Noto Sans Bengali), under their package-provided SIL Open Font Licenses.
+
+`wholesale-sourcing.svg` is an original code-drawn warehouse and packaging illustration created for Paikarii.com on 2026-10-18. It is the default homepage hero, not a photograph of a real supplier. A published custom CMS hero still takes precedence.

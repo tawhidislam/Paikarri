@@ -1,3 +1,4 @@
+import { PublicTerms } from '@/components/terms-document';
 import { useT } from '@/lib/i18n';
 import { Link, useParams } from 'react-router-dom';
 import { useTitle } from '@/components/shared';
@@ -11,7 +12,8 @@ const pages: Record<
 > = {
   about: {
     title: 'Bangladesh, in business.',
-    intro: 'Paikari connects local businesses with the products and people that help them grow.',
+    intro:
+      'Paikarii.com connects local businesses with the products and people that help them grow.',
     sections: [
       [
         'Built for wholesale',
@@ -19,7 +21,7 @@ const pages: Record<
       ],
       [
         'Direct relationships',
-        'Paikari is a discovery and communication marketplace. Buyers and suppliers arrange samples, contracts, delivery, and payment directly. Online checkout is not available.',
+        'Paikarii.com supports wholesale discovery, supplier chat, and order requests. Buyers review supplier-confirmed delivery terms before fulfilment. Cash on delivery and bank payments are arranged externally; Paikarii.com records verified payment status.',
       ],
     ],
   },
@@ -29,7 +31,7 @@ const pages: Record<
     sections: [
       [
         'What verification means',
-        'A verified badge means an authorized reviewer has approved a submitted business document. It is not a guarantee of product quality, creditworthiness, delivery, or payment performance.',
+        'A verified badge requires an active supplier account and a complete, approved, unexpired application covering owner identity, trade licence, and bank details. Verification does not guarantee product quality, delivery, creditworthiness, or payment performance.',
       ],
       [
         'Source thoughtfully',
@@ -70,11 +72,15 @@ const pages: Record<
     sections: [
       [
         'Information stored',
-        'We store account identity, profile contact details, business listings, uploaded documents, saved items, quotation requests, and messages in the connected Supabase Cloud project.',
+        'We store account identity, profiles, business listings, verification documents, saved items, quotations, messages, orders, delivery addresses, payment references, shipments, and dispute history in the connected Supabase Cloud project.',
       ],
       [
         'Public and private information',
-        'Approved products and safe business profile details are public. Profile phone numbers, verification documents, quotations, and conversations are restricted by access policies. Authorized reviewers can access documents for verification.',
+        'Approved products and safe business profile details are public. Profile phone numbers, verification documents, quotations, and conversations are restricted by access policies. Order addresses, payment references, and disputes are accessible only to the buyer, the relevant supplier, and the platform super admin. Staff cannot access order records. Verification documents are restricted to their owner and the super admin.',
+      ],
+      [
+        'Conversation oversight',
+        'Participants and the platform super admin may access supplier–customer conversations for marketplace oversight. Super admin monitoring is read-only, and each conversation opening is recorded in restricted audit history. Staff administrators cannot monitor conversations.',
       ],
       [
         'Retention and requests',
@@ -83,29 +89,6 @@ const pages: Record<
       [
         'Browser storage',
         'Authentication sessions and language preference are stored in your browser. Signing out clears the active authentication session.',
-      ],
-    ],
-  },
-  terms: {
-    title: 'Terms of use',
-    intro:
-      'Launch draft: the marketplace operator must finalize its legal entity, jurisdiction, dispute process, and contact details before public launch.',
-    sections: [
-      [
-        'Your account',
-        'Provide accurate business information and protect your password. Suppliers are responsible for their listings, capacity, prices, and the rights to images they upload.',
-      ],
-      [
-        'Direct transactions',
-        'This release provides product discovery, inquiries, and communication. Any commercial contract, payment, shipping, inspection, or return is arranged directly between the parties.',
-      ],
-      [
-        'Marketplace standards',
-        'Do not post illegal goods, misleading listings, personal data without permission, or abusive content. Administrators may reject, archive, or remove listings and investigate reports.',
-      ],
-      [
-        'Verification and limitations',
-        'Document review is a limited verification step, not an endorsement or transaction guarantee. Independently assess each supplier before entering a business relationship.',
       ],
     ],
   },
@@ -134,8 +117,15 @@ const pages: Record<
   },
 };
 export default function Info() {
-  const tr = useT();
   const { slug = 'about' } = useParams();
+  return slug === 'terms' || slug === 'refund' ? (
+    <PublicTerms key={slug} kind={slug} />
+  ) : (
+    <StaticInfo slug={slug} />
+  );
+}
+function StaticInfo({ slug }: { slug: string }) {
+  const tr = useT();
   const page = pages[slug];
   useTitle(page?.title ?? 'Page not found');
   if (!page)
@@ -148,15 +138,15 @@ export default function Info() {
   return (
     <article className="container info-page">
       <span className="eyebrow">
-        {tr('PAIKARI /')}
+        {tr('PAIKARII.COM /')}
         {slug.toUpperCase()}
       </span>
-      <h1>{page.title}</h1>
-      <p className="info-intro">{page.intro}</p>
+      <h1>{tr(page.title)}</h1>
+      <p className="info-intro">{tr(page.intro)}</p>
       {page.sections.map(([title, body]) => (
         <section key={title}>
-          <h2>{title}</h2>
-          <p>{body}</p>
+          <h2>{tr(title)}</h2>
+          <p>{tr(body)}</p>
         </section>
       ))}
       <Link className="text-link" to="/">

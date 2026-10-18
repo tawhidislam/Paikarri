@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, useRef, type ReactNode } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Navigate, useLocation } from 'react-router-dom';
@@ -8,9 +8,10 @@ import { State } from '@/components/shared';
 const AuthContext = createContext<{
   session: Session | null;
   role: Role | null;
+  status: { status: string; reason: string } | null;
   loading: boolean;
   error: Error | null;
-}>({ session: null, role: null, loading: true, error: null });
+}>({ session: null, role: null, status: null, loading: true, error: null });
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(Boolean(supabase));
@@ -21,7 +22,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let current: string | undefined;
     const { data } = supabase.auth.onAuthStateChange((_event, next) => {
       if (current !== next?.user.id) {
-        cache.clear();
+        void cache.resetQueries();
         current = next?.user.id;
       }
       setSession(next);
@@ -36,6 +37,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [cache]);
   const roleQuery = useQuery({
     queryKey: ['role', session?.user.id],
+    refetchInterval: 15000,
+    refetchOnWindowFocus: true,
     enabled: !!session,
     queryFn: async () => {
       const { data, error } = await db()
@@ -44,15 +47,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .eq('user_id', session!.user.id)
         .single();
       if (error) throw error;
-      if (!['buyer', 'supplier', 'admin'].includes(data.role))
+      if (!['buyer', 'supplier', 'admin', 'super_admin'].includes(data.role))
         throw new Error('Unknown account role.');
       return data.role as Role;
     },
   });
+  const statusQuery = useQuery({
+    queryKey: ['account-status', session?.user.id],
+    enabled: !!session,
+    refetchInterval: 15000,
+    refetchOnWindowFocus: true,
+    queryFn: async () => {
+      const { data, error } = await db().rpc('get_account_status');
+      if (error) throw error;
+      if (!data || typeof data !== 'object' || Array.isArray(data)) return null;
+      return { status: String(data.status), reason: String(data.reason) };
+    },
+  });
+  const previousAccess = useRef('');
+  const access = `${session?.user.id}:${roleQuery.data}:${statusQuery.data?.status}`;
+  useEffect(() => {
+    if (previousAccess.current && previousAccess.current !== access)
+      void cache.invalidateQueries({
+        predicate: (q) => !['role', 'account-status'].includes(String(q.queryKey[0])),
+      });
+    previousAccess.current = access;
+  }, [access, cache]);
   return (
     <AuthContext.Provider
       value={{
         session,
+        status: statusQuery.data ?? null,
         role: roleQuery.data ?? null,
         loading: loading || (!!session && roleQuery.isPending),
         error: authError ?? roleQuery.error,
@@ -70,7 +95,10 @@ export function Protected({ roles, children }: { roles?: Role[]; children: React
   if (a.error) return <State title="Account unavailable" description={a.error.message} />;
   if (!a.session)
     return (
-      <Navigate to={`/auth/login?next=${encodeURIComponent(loc.pathname + loc.search)}`} replace />
+      <Navigate
+        to={`${loc.pathname.startsWith('/admin') ? '/admin/login' : '/auth/login'}?next=${encodeURIComponent(loc.pathname + loc.search)}`}
+        replace
+      />
     );
   if (roles && !roles.includes(a.role!))
     return (
