@@ -1,4 +1,4 @@
-# Paikari — Bangladesh, in business.
+# Paikarii.com — Bangladesh, in business.
 
 A Bangladesh B2B wholesale marketplace built with **React + Vite, TypeScript, Tailwind CSS v4, shadcn-style UI, Supabase Cloud, React Router, TanStack Query, React Hook Form and Zod**. The user selected React + Vite in place of the original Next.js request. Supabase CLI manages the hosted backend. No Docker, local PostgreSQL, or local Supabase stack is used.
 
@@ -31,7 +31,7 @@ Read [deployment instructions](docs/DEPLOYMENT.md) and [architecture](docs/ARCHI
 - Supabase email/password authentication, confirmation callback, password recovery, persistent PKCE sessions and role-based workspaces.
 - Supplier business profile, transactional product/tier management, image uploads, private verification documents and inquiry responses.
 - Buyer favorites, saved suppliers, quotations and participant-only realtime messaging.
-- Database-authorized admin review, supplier verification, categories, reports, accounts and audit history.
+- Dedicated `/admin` console with super-admin/staff permissions, account suspension, private verification review, all-image product moderation, categories, reports, staff access, platform settings and audit history. See [console guide](docs/ADMIN_CONSOLE.md).
 - RLS on every application table, private storage policies, upload bounds and database-backed inquiry limits.
 - Route-level code splitting, loading/error states, keyboard-accessible controls, JSON-LD product data and build-generated sitemap.
 
@@ -77,4 +77,25 @@ scripts/            # Optional fictional seed and sitemap generation
  docs/              # Architecture, deployment and verification
 ```
 
-Future checkout, payments, logistics, subscriptions, advertising and recommendations are intentionally excluded.
+Wholesale cart, checkout requests, supplier fulfilment, COD/manual bank payment records, disputes and full-order returns are implemented. Online payment collection, integrated logistics, subscriptions, advertising and recommendations remain future modules. See [Wholesale orders](docs/WHOLESALE_ORDERS.md).
+
+### Homepage and onboarding operations
+
+The super admin manages bilingual homepage drafts, marketing images, featured selections and explicit publication at `/admin/homepage`. Administrators track supplier milestones at `/admin/onboarding` and review in-app delivery at `/admin/notifications`. Buyer/supplier inboxes are at `/dashboard/notifications`; administrators use `/admin/inbox`. See [release guide](docs/ADMIN_RELEASE_2.md) for permissions, limits, migration and acceptance details.
+
+The refreshed public homepage includes live category navigation, readable bilingual wholesale cards, distinct featured/arrival feeds and resilient images. See the [homepage guide](docs/HOMEPAGE_REFRESH.md) for content behavior and verification.
+
+Three-step supplier verification and super-admin review are documented in [Supplier verification](docs/SUPPLIER_VERIFICATION.md), including private evidence, revisions, expiry/Cron, cloud operation and security tests.
+
+Super-admin-only read-only conversation oversight is available at `/admin/conversations`. See [Conversation monitoring](docs/CONVERSATION_MONITORING.md) for audited access, pagination, privacy notices and cloud operation.
+
+Super-admin supplier activity, private notes/labels, corrective actions, and verification renewals are available under **Supplier management** and **Verification renewals**. See [Supplier operations](docs/SUPPLIER_MANAGEMENT.md) for permissions, supplier responses, and reminder limits.
+
+Buyer–supplier chat now supports product-context messages, floating desktop/mobile chat, unread counts, read receipts, server-side inbox search, complete cursor-paginated history, and retry-safe sending. See [Customer chat](docs/CUSTOMER_CHAT.md) for database authorization, Realtime setup, draft behavior, and release scope.
+
+Product variants, sourcing offers, private customization files, comparison and moderated purchase reviews: [Product buying upgrade](docs/PRODUCT_BUYING_UPGRADE.md).
+
+## Marketplace growth release
+
+See [Platform improvements](docs/PLATFORM_IMPROVEMENTS.md) for tender bidding, quick sourcing requests, shipping estimates, buyer organizations, CSV tools, private search history, financial reports, public catalog HTML, cloud migrations and deferred provider setup. COD/manual bank remain active; no escrow or automated courier/payment provider is configured.
+# Paikarri
