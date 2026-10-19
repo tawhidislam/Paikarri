@@ -1,3 +1,4 @@
+import { StoreAvatar } from '@/components/store-picture';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -15,6 +16,7 @@ import {
   IdCard,
   Building2,
   Landmark,
+  Truck,
 } from 'lucide-react';
 import { defaultHomepage, useHomepage, type HomepageConfig } from '@/lib/operations';
 import { useLocale, useT } from '@/lib/i18n';
@@ -38,6 +40,14 @@ import './home.css';
 
 const defaultHeroImage = 'wholesale-sourcing.svg';
 const mobileImagePlaceholder = '/images/mobile-empty.svg';
+
+const trendingTags = [
+  { en: 'Cotton Yarn', bn: 'কটন সুতা', query: 'cotton yarn' },
+  { en: 'Corrugated Cartons', bn: 'কার্টন বক্স', query: 'corrugated carton' },
+  { en: 'Denim Fabric', bn: 'ডেনিম ফেব্রিক', query: 'denim fabric' },
+  { en: 'Jute Bags', bn: 'পাটের ব্যাগ', query: 'jute bags' },
+  { en: 'Garment Accessories', bn: 'গার্মেন্টস এক্সেসরিজ', query: 'garment accessories' },
+];
 
 /** WebP variants keep source photography intact; originals remain the browser fallback. */
 function LocalPhoto({
@@ -126,13 +136,7 @@ export function SupplierCard({ business: b }: { business: Business }) {
   const name = locale === 'bn' && b.name_bn ? b.name_bn : b.name;
   return (
     <Link className="supplier-card home-supplier-card" to={`/suppliers/${b.id}`}>
-      <div className="supplier-avatar" aria-hidden="true">
-        {name
-          .split(' ')
-          .map((n) => n[0])
-          .slice(0, 2)
-          .join('')}
-      </div>
+      <StoreAvatar business={b} name={name} className="supplier-avatar" />
       <div className="home-supplier-copy">
         <span className="verified-label">
           {b.verified && <ShieldCheck size={13} />}
@@ -334,7 +338,49 @@ export default function Home({ previewConfig }: { previewConfig?: HomepageConfig
                     <span key={`${i}-${line}`}>{i === 1 ? <em>{line}</em> : line}</span>
                   ))}
               </h1>
-              <p>{text(config.hero_body_en, config.hero_body_bn)}</p>
+              <p className="home-hero-desc">{text(config.hero_body_en, config.hero_body_bn)}</p>
+              <div className="home-hero-search-console">
+                <form
+                  className="home-hero-search"
+                  role="search"
+                  aria-label={tr('Search products')}
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    navigate(searchHref(heroSearch));
+                  }}
+                >
+                  <div className="home-search-badge" aria-hidden="true">
+                    <Factory size={14} />
+                    <span>{tr('Wholesale')}</span>
+                  </div>
+                  <Search size={18} aria-hidden="true" className="home-search-icon" />
+                  <input
+                    type="search"
+                    placeholder={tr('Search wholesale products, factories, yarn, cartons…')}
+                    value={heroSearch}
+                    onChange={(e) => setHeroSearch(e.target.value)}
+                    aria-label={t.search}
+                  />
+                  <button type="submit">{t.searchButton}</button>
+                </form>
+                <div className="home-hero-trending" aria-label={tr('Trending wholesale searches')}>
+                  <span className="home-trending-label">{tr('Trending:')}</span>
+                  {trendingTags.map((tag) => (
+                    <button
+                      key={tag.en}
+                      type="button"
+                      className="home-hero-chip"
+                      onClick={() => {
+                        const label = locale === 'bn' ? tag.bn : tag.en;
+                        setHeroSearch(label);
+                        navigate(searchHref(tag.query));
+                      }}
+                    >
+                      {locale === 'bn' ? tag.bn : tag.en}
+                    </button>
+                  ))}
+                </div>
+              </div>
               <div className="home-hero-actions">
                 <Button asChild variant="accent">
                   <Link to={config.hero_href}>
@@ -347,25 +393,20 @@ export default function Home({ previewConfig }: { previewConfig?: HomepageConfig
                   <ArrowRight size={16} />
                 </Link>
               </div>
-              <form
-                className="home-hero-search"
-                role="search"
-                aria-label={tr('Search products')}
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  navigate(searchHref(heroSearch));
-                }}
-              >
-                <Search size={18} aria-hidden="true" />
-                <input
-                  type="search"
-                  placeholder={t.search}
-                  value={heroSearch}
-                  onChange={(e) => setHeroSearch(e.target.value)}
-                  aria-label={t.search}
-                />
-                <button type="submit">{t.searchButton}</button>
-              </form>
+              <div className="home-hero-mobile-badges" aria-hidden="true">
+                <span>
+                  <ShieldCheck size={14} />
+                  {tr('Verified Manufacturer')}
+                </span>
+                <span>
+                  <Landmark size={14} />
+                  {tr('BRAC Bank Escrow')}
+                </span>
+                <span>
+                  <Truck size={14} />
+                  {tr('Across 64 Districts')}
+                </span>
+              </div>
             </div>
             <div className="home-hero-art">
               <div className="home-main-photo">
@@ -407,20 +448,23 @@ export default function Home({ previewConfig }: { previewConfig?: HomepageConfig
                 )}
                 <span>{tr('LOCAL SOURCING. NEW POSSIBILITIES.')}</span>
               </div>
-              <div className="home-detail-photo">
-                <LocalPhoto
-                  filename="packaging.svg"
-                  alt={tr('Illustration of wholesale packaging cartons')}
-                  sizes="(min-width: 1001px) 135px, 100px"
-                />
-              </div>
-              <div className="home-source-note">
-                <Factory size={26} strokeWidth={1.5} />
-                <div>
-                  <strong>{tr('Local connections.')}</strong>
-                  <span>{tr('Built for your next chapter.')}</span>
+              <div className="home-hero-badge-float home-hero-badge-top">
+                <div className="badge-icon-wrap verified">
+                  <ShieldCheck size={18} />
                 </div>
-                <span aria-hidden="true">↗</span>
+                <div>
+                  <strong>{tr('Verified Manufacturer')}</strong>
+                  <span>{tr('Direct Factory Rate')}</span>
+                </div>
+              </div>
+              <div className="home-hero-badge-float home-hero-badge-bottom">
+                <div className="badge-icon-wrap escrow">
+                  <Landmark size={18} />
+                </div>
+                <div>
+                  <strong>{tr('BRAC Bank Escrow Protected')}</strong>
+                  <span>{tr('100% Payout Security')}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -448,12 +492,16 @@ export default function Home({ previewConfig }: { previewConfig?: HomepageConfig
                         stats.data.productCount,
                       ),
                     )
-                  : tr('Direct supplier connections')}
+                  : tr('Direct wholesale MOQs')}
               </span>
             </div>
             <div>
-              <MapPin size={20} />
-              <span>{tr('Across Bangladesh')}</span>
+              <Landmark size={20} />
+              <span>{tr('BRAC Bank Escrow Protected')}</span>
+            </div>
+            <div>
+              <Truck size={20} />
+              <span>{tr('Nationwide Delivery (64 Districts)')}</span>
             </div>
           </div>
         </div>

@@ -1,9 +1,10 @@
+import { StorePictureEditor } from '@/components/store-picture';
 import { ShippingSettings } from '@/components/growth/shipping';
 import { SupplierOptions } from '@/components/product/supplier-options';
 import { prepareImageUpload } from '@/lib/image-upload';
 import { useT } from '@/lib/i18n';
-import { useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -96,7 +97,8 @@ export function BusinessPage() {
             <State title={tr('Loading business…')} />
           ) : (
             <>
-              <BusinessForm key={own.data?.updated_at ?? 'new'} business={own.data ?? null} />
+              {own.data && <StorePictureEditor business={own.data} />}
+              <BusinessForm key={own.data?.id ?? 'new'} business={own.data ?? null} />
               {own.data && <ShippingSettings business={own.data.id} />}
             </>
           )}
@@ -140,12 +142,101 @@ function BusinessForm({ business }: { business: Business | null }) {
   });
   return (
     <form className="panel form-stack" onSubmit={form.handleSubmit((v) => save.mutate(v))}>
-      {business?.verified && (
-        <span className="verified-label">
-          <ShieldCheck size={16} />
-          {tr('VERIFIED BUSINESS')}
-        </span>
-      )}
+      {business?.verified ? (
+        <div
+          className="supplier-verified-perks-card"
+          style={{
+            background: 'linear-gradient(135deg, #f0f7f3 0%, #e6f2eb 100%)',
+            border: '1px solid #b5d5c5',
+            borderRadius: '12px',
+            padding: '18px 20px',
+            marginBottom: '16px',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              marginBottom: '8px',
+              flexWrap: 'wrap',
+            }}
+          >
+            <span className="verified-label" style={{ margin: 0 }}>
+              <ShieldCheck size={16} />
+              {tr('Official Verified Supplier')}
+            </span>
+            <span
+              style={{
+                fontSize: '12px',
+                color: '#17483b',
+                fontWeight: 600,
+                background: '#d7ecdf',
+                padding: '2px 8px',
+                borderRadius: '12px',
+              }}
+            >
+              {tr('Badge active')}
+            </span>
+          </div>
+          <p style={{ margin: '0 0 10px', fontSize: '13px', color: '#2e4e3f', lineHeight: 1.5 }}>
+            {tr(
+              'Your business holds the official Paikarii Verified Badge. Enjoy priority wholesale search ranking, trusted buyer inquiries, and verified storefront branding.',
+            )}
+          </p>
+          <ul
+            style={{
+              margin: 0,
+              paddingLeft: '18px',
+              fontSize: '12px',
+              color: '#3d6150',
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+              gap: '6px',
+            }}
+          >
+            <li>✓ {tr('Verified Trust Seal active on storefront')}</li>
+            <li>✓ {tr('Priority wholesale search ranking')}</li>
+            <li>✓ {tr('Verified badge shown to wholesale buyers in chat & quotes')}</li>
+          </ul>
+        </div>
+      ) : business ? (
+        <div
+          className="supplier-unverified-prompt-card"
+          style={{
+            background: '#fcfdfd',
+            border: '1px dashed #c4d7cd',
+            borderRadius: '12px',
+            padding: '16px 20px',
+            marginBottom: '16px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: '16px',
+            flexWrap: 'wrap',
+          }}
+        >
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+              <ShieldCheck size={18} style={{ color: '#52796f' }} />
+              <strong style={{ fontSize: '14px', color: '#1f3b2f' }}>
+                {tr('Get your verified supplier badge')}
+              </strong>
+            </div>
+            <p style={{ margin: 0, fontSize: '13px', color: '#576f63' }}>
+              {tr(
+                'Build buyer confidence with verified documents and unlock higher visibility in the wholesale marketplace.',
+              )}
+            </p>
+          </div>
+          <Button asChild variant="outline" size="sm">
+            <Link to="/dashboard/verification">
+              <ShieldCheck size={14} />
+              {tr('Get verified')}
+            </Link>
+          </Button>
+        </div>
+      ) : null}
       <div className="form-grid">
         <Field label={tr('Business name (English)')} error={form.formState.errors.name?.message}>
           <input {...form.register('name')} />
@@ -326,6 +417,7 @@ export function SupplierProducts() {
 export function ProductEditor() {
   const tr = useT();
   const { id } = useParams();
+  const location = useLocation();
   const own = useBusiness();
   useTitle(id ? 'Edit product' : 'Add product');
   const record = useQuery({
@@ -356,6 +448,12 @@ export function ProductEditor() {
         title={tr(id ? 'Edit your product' : 'Add a wholesale product')}
         description={tr('Clear details and good photos help buyers find the right fit.')}
       />
+      {id && location.state?.productSaved === id && (
+        <ProductSaveConfirmation
+          key={location.key}
+          created={location.state.productCreated === true}
+        />
+      )}
       <ProductForm
         key={id ? `${id}-${record.data?.product.updated_at}` : 'new'}
         product={record.data?.product}
@@ -370,9 +468,26 @@ export function ProductEditor() {
     </>
   );
 }
+function ProductSaveConfirmation({ created }: { created: boolean }) {
+  const tr = useT();
+  const banner = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    banner.current?.focus({ preventScroll: true });
+    banner.current?.scrollIntoView({ block: 'center' });
+  }, []);
+  return (
+    <div ref={banner} tabIndex={-1} className="product-save-confirmation">
+      <Notice
+        success={tr(created ? 'Product added successfully.' : 'Product updated successfully.')}
+      />
+      <p>{tr('Your listing is awaiting review. You can upload product photos below.')}</p>
+    </div>
+  );
+}
 function ProductForm({ product, tiers }: { product?: Product; tiers: PriceTier[] }) {
   const tr = useT();
   const navigate = useNavigate();
+  const location = useLocation();
   const cache = useQueryClient();
   const [spec, setSpec] = useState(
     Object.entries(product?.specifications ?? {})
@@ -397,6 +512,9 @@ function ProductForm({ product, tiers }: { product?: Product; tiers: PriceTier[]
   });
   const rows = form.watch('tiers');
   const save = useMutation({
+    onMutate: () => {
+      if (location.state?.productSaved) navigate(location.pathname, { replace: true, state: null });
+    },
     mutationFn: async (v: z.infer<typeof productSchema>) => {
       const specifications: Record<string, string> = {};
       for (const line of spec.split('\n').filter((x) => x.trim())) {
@@ -413,7 +531,10 @@ function ProductForm({ product, tiers }: { product?: Product; tiers: PriceTier[]
     onSuccess: (id) => {
       void cache.invalidateQueries({ queryKey: ['own-products'] });
       void cache.invalidateQueries({ queryKey: ['edit-product'] });
-      navigate(`/dashboard/products/${id}`);
+      navigate(`/dashboard/products/${id}`, {
+        replace: !!product,
+        state: { productSaved: id, productCreated: !product },
+      });
     },
   });
   return (
@@ -539,10 +660,7 @@ function ProductForm({ product, tiers }: { product?: Product; tiers: PriceTier[]
           {tr('Add pricing tier')}
         </Button>
       </div>
-      <Notice
-        error={save.error ?? cats.error}
-        success={save.isSuccess ? tr('Product saved and submitted for review.') : undefined}
-      />
+      <Notice error={save.error ?? cats.error} />
       <p className="muted">
         {tr(
           product
@@ -550,7 +668,9 @@ function ProductForm({ product, tiers }: { product?: Product; tiers: PriceTier[]
             : 'Save your product, then upload photos on the next screen.',
         )}
       </p>
-      <Button disabled={save.isPending}>{tr('Save & submit for review')}</Button>
+      <Button type="submit" disabled={save.isPending}>
+        {tr(save.isPending ? 'Saving product…' : 'Save & submit for review')}
+      </Button>
     </form>
   );
 }

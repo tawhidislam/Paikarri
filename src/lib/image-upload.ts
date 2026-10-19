@@ -1,9 +1,20 @@
 import { stripChatImageMetadata } from '../../supabase/functions/_shared/chat-image-validation';
 import { validateUpload } from './utils';
 export type ImageUploadKind =
-  'product-images' | 'avatars' | 'business-documents' | 'request-attachments' | 'chat-images';
+  | 'product-images'
+  | 'avatars'
+  | 'business-documents'
+  | 'request-attachments'
+  | 'chat-images'
+  | 'store-images';
 // Documents use a conservative quality floor to keep fine print readable.
 export const imageUploadProfiles = {
+  'store-images': {
+    maxDimension: 512,
+    quality: 0.84,
+    minimumQuality: 0.72,
+    targetBytes: 120 * 1024,
+  },
   'chat-images': {
     maxDimension: 1600,
     quality: 0.8,
@@ -81,9 +92,10 @@ export async function prepareImageUpload(file: File, kind: ImageUploadKind): Pro
       const smaller = await encode(canvas, profile.minimumQuality);
       if (smaller.size < result.size) result = smaller;
     }
-    if (kind === 'chat-images') {
+    if (kind === 'chat-images' || kind === 'store-images') {
       // Always re-encode chat images: remove source metadata and enforce bounded storage.
-      for (let attempt = 0; result.size > 1024 * 1024 && attempt < 4; attempt++) {
+      const maximum = kind === 'store-images' ? 256 * 1024 : 1024 * 1024;
+      for (let attempt = 0; result.size > maximum && attempt < 4; attempt++) {
         canvas.width = Math.max(1, Math.floor(canvas.width * 0.8));
         canvas.height = Math.max(1, Math.floor(canvas.height * 0.8));
         context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
@@ -92,7 +104,11 @@ export async function prepareImageUpload(file: File, kind: ImageUploadKind): Pro
       if (result.type !== 'image/webp')
         throw new Error('WebP image compression is unavailable in this browser.');
       const clean = stripChatImageMetadata(new Uint8Array(await result.arrayBuffer()));
-      const compressed = new File([clean.buffer], 'chat-image.webp', { type: 'image/webp' });
+      const compressed = new File(
+        [clean.buffer],
+        kind === 'store-images' ? 'store-picture.webp' : 'chat-image.webp',
+        { type: 'image/webp' },
+      );
       validateUpload(compressed, kind);
       return compressed;
     }

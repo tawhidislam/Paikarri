@@ -1,13 +1,12 @@
+import { SupplierStorefront } from './supplier-storefront';
 import { growthDb } from '@/lib/growth';
 import { z } from 'zod';
-import { SaveSupplier } from '@/components/save-supplier';
-import { ChatButton } from '@/components/marketplace-chat';
 import { useT } from '@/lib/i18n';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { SlidersHorizontal, Search, ArrowRight, MapPin, ShieldCheck } from 'lucide-react';
+import { SlidersHorizontal, Search, ArrowRight, ShieldCheck } from 'lucide-react';
 import { catalog, categories, businesses } from '@/lib/catalog';
-import { configured, db } from '@/lib/supabase';
+import { configured } from '@/lib/supabase';
 import { useLocale } from '@/lib/i18n';
 import { locations } from '@/lib/locations';
 import { money } from '@/lib/utils';
@@ -292,99 +291,17 @@ export default function Marketplace() {
     </div>
   );
 }
+
 export function Suppliers() {
   const tr = useT();
   const { id } = useParams();
   const [params, setParams] = useSearchParams();
-  useTitle('Find wholesale suppliers');
-  const list = useQuery({ queryKey: ['businesses'], queryFn: businesses, enabled: configured });
-  const business = list.data?.find((b) => b.id === id);
-  const products = useQuery({
-    queryKey: ['supplier-products', id],
-    enabled: configured && !!id,
-    queryFn: async () => {
-      const { data, error } = await db()
-        .rpc('public_products')
-        .select('id')
-        .eq('business_id', id!)
-        .eq('status', 'approved');
-      if (error) throw error;
-      const { hydrate } = await import('@/lib/catalog');
-      const all = await db()
-        .rpc('public_products')
-        .select('*')
-        .in(
-          'id',
-          data.map((p) => p.id),
-        );
-      if (all.error) throw all.error;
-      return hydrate(all.data);
-    },
-  });
-  if (id)
-    return (
-      <div className="container page-content">
-        <div className="breadcrumb">
-          <Link to="/suppliers">{tr('Suppliers')}</Link>
-          <span>/</span>
-          {tr('Business profile')}
-        </div>
-        <Notice error={list.error ?? products.error} />
-        {business ? (
-          <>
-            <div className="business-hero">
-              <div className="business-avatar">{business.name.slice(0, 2)}</div>
-              <div>
-                {business.verified && (
-                  <span className="verified-label">
-                    <ShieldCheck size={16} />
-                    {tr('VERIFIED SUPPLIER')}
-                  </span>
-                )}
-                <h1>{business.name}</h1>
-                <p>
-                  <MapPin size={15} />
-                  {business.district}, {business.division}
-                </p>
-              </div>
-            </div>
-            <div className="business-detail">
-              <div>
-                <h2>{tr('About the business')}</h2>
-                <p className="preserve-lines">{business.description}</p>
-                <p>{business.address}</p>
-                {business.contact_phone && (
-                  <p>
-                    <a href={`tel:${business.contact_phone}`}>{business.contact_phone}</a>
-                  </p>
-                )}
-                {business.website.startsWith('https://') && (
-                  <a href={business.website} target="_blank" rel="noreferrer">
-                    {tr('Visit website')} ↗
-                  </a>
-                )}
-              </div>
-              <div className="form-stack">
-                <ChatButton business={business.id} />
-                <SaveSupplier id={business.id} />
-              </div>
-            </div>
-            <SectionTitle title={tr('Products from this supplier')} />
-            {products.data?.length ? (
-              <div className="product-grid">
-                {products.data.map((p) => (
-                  <ProductCard key={p.id} product={p} />
-                ))}
-              </div>
-            ) : (
-              <State title={tr('No approved products yet')} />
-            )}
-          </>
-        ) : (
-          !list.isLoading && <State title={tr('Supplier not found')} />
-        )}{' '}
-      </div>
-    );
+  useTitle(tr('Find wholesale suppliers'));
+
+  const list = useQuery({ queryKey: ['businesses'], queryFn: businesses, enabled: configured && !id });
+  if (id) {
+    return <SupplierStorefront id={id} />;
+  }
   return (
     <div className="container page-content">
       <SectionTitle

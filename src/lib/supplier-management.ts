@@ -80,6 +80,16 @@ export function dhakaToday(now = new Date()) {
     day: '2-digit',
   }).format(now);
 }
+export function correctionDays(dueOn: string, now = new Date()) {
+  return Math.round(
+    (Date.parse(`${dueOn}T00:00:00Z`) - Date.parse(`${dhakaToday(now)}T00:00:00Z`)) / 86400000,
+  );
+}
+export function addDaysToDate(days: number, fromDate = dhakaToday()): string {
+  const d = new Date(`${fromDate}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
 export function dateOnly(value: string, locale = 'en') {
   return new Intl.DateTimeFormat(locale === 'bn' ? 'bn-BD' : 'en-BD', {
     timeZone: 'Asia/Dhaka',
@@ -164,4 +174,30 @@ export async function respondWarning(warning: SupplierWarning, response: string)
     response: noteInput.parse(response),
   });
   if (error) throw error;
+}
+export const verifiedBadgeInputSchema = z.object({
+  grant: z.boolean(),
+  reason: z.string().trim().min(5).max(2000),
+  method: z.string().trim().max(100).optional(),
+  valid_until: z.iso.date().optional(),
+});
+export type VerifiedBadgeInput = z.infer<typeof verifiedBadgeInputSchema>;
+export const verificationMethods = [
+  { id: 'direct_admin_grant', labelEn: 'Direct Super Admin Verification', labelBn: 'সুপার অ্যাডমিন সরাসরি ভেরিফিকেশন' },
+  { id: 'offline_license_bank', labelEn: 'Offline Trade License & Bank Review', labelBn: 'ট্রেড লাইসেন্স ও ব্যাংক অফলাইন যাচাই' },
+  { id: 'factory_audit', labelEn: 'On-Site Factory & Capacity Audit', labelBn: 'অন-সাইট কারখানা ও সক্ষমতা নিরীক্ষা' },
+  { id: 'enterprise_partner', labelEn: 'Enterprise Strategic Partner', labelBn: 'এন্টারপ্রাইজ কৌশলগত অংশীদার' },
+  { id: 'manual_exception', labelEn: 'Executive Exception Approval', labelBn: 'বিশেষ নির্বাহী অনুমোদন' },
+] as const;
+export async function adminSetSupplierVerified(target: string, payload: VerifiedBadgeInput) {
+  const value = verifiedBadgeInputSchema.parse(payload);
+  const { data, error } = await db().rpc('admin_set_supplier_verified', {
+    target,
+    grant_badge: value.grant,
+    reason: value.reason,
+    method: value.method || 'direct_admin_grant',
+    valid_until: value.valid_until || null,
+  });
+  if (error) throw error;
+  return workspaceSchema.parse(data);
 }

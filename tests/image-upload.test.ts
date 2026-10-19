@@ -29,4 +29,13 @@ describe('upload compression boundaries', () => {
       prepareImageUpload({ type: 'image/png', size: 21 * 1024 * 1024 } as File, 'product-images'),
     ).rejects.toThrow();
   });
+  it('uses a bounded store logo profile and rejects non-image inputs', async () => {
+    expect(imageUploadProfiles['store-images'].maxDimension).toBe(512);
+    await expect(
+      prepareImageUpload(
+        new File(['pdf'], 'picture.pdf', { type: 'application/pdf' }),
+        'store-images',
+      ),
+    ).rejects.toThrow();
+  });
 });

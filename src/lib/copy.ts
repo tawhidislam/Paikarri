@@ -1,3 +1,5 @@
+import { storefrontCopy } from './storefront-copy';
+import { adminOrdersCopy } from './admin-orders-copy';
 import { growthCopy } from './growth-copy';
 import { receiptCopy } from './receipt-copy';
 import { termsCopy } from './terms-copy';
@@ -8,6 +10,104 @@ import { disputesCopy } from './disputes-copy';
 // Central interface copy. English source phrases are stable keys; all Bangla
 // translations belong here rather than in individual components.
 export const banglaCopy: Record<string, string> = {
+  ...storefrontCopy,
+  ...adminOrdersCopy,
+  'Store picture': 'দোকানের ছবি',
+  'Store profile picture': 'দোকানের প্রোফাইল ছবি',
+  'Store picture removed.': 'দোকানের ছবি সরানো হয়েছে।',
+  'Store picture saved.': 'দোকানের ছবি সংরক্ষণ করা হয়েছে।',
+  'Upload your store logo or business picture. It appears on your public storefront and supplier cards.':
+    'আপনার দোকানের লোগো বা ব্যবসার ছবি আপলোড করুন। এটি দোকানের পাতা ও সরবরাহকারীর কার্ডে দেখা যাবে।',
+  'JPEG, PNG or WebP up to 20 MB. Optimized to WebP, at most 512px and 256 KB before upload.':
+    'সর্বোচ্চ ২০ এমবি JPEG, PNG বা WebP ছবি দিন। আপলোডের আগে WebP-তে রূপান্তর করে সর্বোচ্চ ৫১২ পিক্সেল ও ২৫৬ কেবি করা হবে।',
+  'Optimizing & uploading…': 'ছবি ছোট করে আপলোড করা হচ্ছে…',
+  'Replace store picture': 'দোকানের ছবি পরিবর্তন করুন',
+  'Upload store picture': 'দোকানের ছবি আপলোড করুন',
+  'Choose store picture': 'দোকানের ছবি বেছে নিন',
+  'Remove picture': 'ছবি সরান',
+  'Upload size': 'আপলোডের আকার',
+  'Store pictures must be optimized WebP images up to 256 KB.':
+    'দোকানের ছবি সর্বোচ্চ ২৫৬ কেবির অপ্টিমাইজ করা WebP হতে হবে।',
+  'Store picture changed. Refresh before trying again.':
+    'দোকানের ছবি পরিবর্তিত হয়েছে। আবার চেষ্টা করার আগে রিফ্রেশ করুন।',
+  'Supplier name or email…': 'সরবরাহকারীর নাম বা ইমেইল…',
+  'Supplier quick filters': 'সরবরাহকারীর দ্রুত ফিল্টার',
+  'Needs attention on this page': 'এই পাতায় করণীয় রয়েছে',
+  'Showing follow-up needs within the current page. Search and account filters still apply.':
+    'বর্তমান পাতার করণীয় দেখানো হচ্ছে। অনুসন্ধান ও অ্যাকাউন্টের ফিল্টারও প্রযোজ্য।',
+  'No follow-up needed on this page': 'এই পাতায় কোনো করণীয় নেই',
+  Breadcrumb: 'নেভিগেশন পথ',
+  'View storefront': 'দোকান দেখুন',
+  'Email supplier': 'সরবরাহকারীকে ইমেইল করুন',
+  'Call supplier': 'সরবরাহকারীকে কল করুন',
+  'Account changes require a reason and are recorded in audit history.':
+    'অ্যাকাউন্ট পরিবর্তনের কারণ দিতে হবে এবং তা কার্যক্রমের ইতিহাসে নথিভুক্ত হবে।',
+  'Account status updated': 'অ্যাকাউন্টের অবস্থা আপডেট হয়েছে',
+  'Overdue corrective actions need attention': 'মেয়াদোত্তীর্ণ সংশোধনের কাজগুলো পর্যালোচনা করুন',
+  'Warnings do not suspend accounts automatically.':
+    'সতর্কবার্তার কারণে স্বয়ংক্রিয়ভাবে অ্যাকাউন্ট স্থগিত হয় না।',
+  'Review warnings': 'সতর্কবার্তা দেখুন',
+  'Catalog status': 'ক্যাটালগের অবস্থা',
+  'Buyer inquiries': 'ক্রেতার অনুসন্ধান',
+  'Compliance health': 'নিয়ম অনুসরণের অবস্থা',
+  'Profile health': 'প্রোফাইলের অবস্থা',
+  Incomplete: 'অসম্পূর্ণ',
+  'Supplier workspace sections': 'সরবরাহকারীর কর্মক্ষেত্রের বিভাগ',
+  'Overview & Labels': 'বিবরণ ও লেবেল',
+  'Warnings & Sanctions': 'সতর্কবার্তা ও ব্যবস্থা',
+  'Internal Notes': 'অভ্যন্তরীণ নোট',
+  'Verification & Renewals': 'যাচাই ও নবায়ন',
+  'Labels saved.': 'লেবেল সংরক্ষণ করা হয়েছে।',
+  'Use up to 10 labels, 2–40 characters each.':
+    'সর্বোচ্চ ১০টি লেবেল দিন, প্রতিটিতে ২–৪০টি অক্ষর থাকতে হবে।',
+  'Remove label': 'লেবেল সরান',
+  'Add tag': 'লেবেল যোগ করুন',
+  'Type a label and press Enter': 'লেবেল লিখে এন্টার চাপুন',
+  'Quick presets': 'দ্রুত লেবেলসমূহ',
+  'VIP Supplier': 'ভিআইপি সরবরাহকারী',
+  'High Volume': 'বড় পরিসরে সরবরাহ',
+  'Fast Dispatch': 'দ্রুত প্রেরণ',
+  'Slow Response': 'উত্তরে বিলম্ব',
+  'Catalog Incomplete': 'অসম্পূর্ণ ক্যাটালগ',
+  'Edit labels as text': 'লিখে লেবেল সম্পাদনা করুন',
+  'Press Ctrl / ⌘ + Enter to add a note.': 'নোট যোগ করতে Ctrl / ⌘ + Enter চাপুন।',
+  'Note filters': 'নোটের ফিল্টার',
+  'Active notes': 'সক্রিয় নোট',
+  'Archived notes': 'আর্কাইভকৃত নোট',
+  'No internal notes in this view': 'এখানে কোনো অভ্যন্তরীণ নোট নেই',
+  'Note filters apply to the current page.': 'নোটের ফিল্টার বর্তমান পাতায় প্রযোজ্য।',
+  'Warning filters': 'সতর্কবার্তার ফিল্টার',
+  'Issue supplier warning': 'সরবরাহকারীকে সতর্কবার্তা দিন',
+  'Confirm warning': 'সতর্কবার্তা নিশ্চিত করুন',
+  'Complete all warning fields and choose a valid deadline.':
+    'সতর্কবার্তার সব তথ্য পূরণ করে একটি বৈধ সময়সীমা দিন।',
+  'Verification requires an approved, unexpired application and an active account.':
+    'যাচাইকৃত হতে অনুমোদিত ও মেয়াদের মধ্যে থাকা আবেদন এবং সক্রিয় অ্যাকাউন্ট প্রয়োজন।',
+  'Remaining in the 60-day renewal window': 'নবায়নের ৬০ দিনের সময়সীমায় অবশিষ্ট সময়',
+  'No renewal due within 60 days. Open verification review for application details.':
+    '৬০ দিনের মধ্যে কোনো নবায়ন বাকি নেই। আবেদনের বিস্তারিত জানতে যাচাই পর্যালোচনা খুলুন।',
+  'Due today': 'আজ শেষ দিন',
+  'Overdue by': 'সময়সীমা পেরিয়েছে:',
+  'Due in': 'সময় বাকি:',
+  'Platform review': 'প্ল্যাটফর্ম পর্যালোচনা',
+  'No action history yet': 'এখনও কোনো কার্যক্রমের ইতিহাস নেই',
+  'Listing review queue': 'পণ্য পর্যালোচনার তালিকা',
+  'Starting price': 'প্রারম্ভিক মূল্য',
+  'Hide details': 'বিস্তারিত লুকান',
+  'Review listing': 'পণ্য পর্যালোচনা করুন',
+  'Date created': 'যোগ করার তারিখ',
+  'Preview image': 'ছবির প্রিভিউ দেখুন',
+  'Product image preview': 'পণ্যের ছবির প্রিভিউ',
+  'No product images uploaded.': 'পণ্যের কোনো ছবি আপলোড করা হয়নি।',
+  'No specifications provided.': 'কোনো বৈশিষ্ট্য দেওয়া হয়নি।',
+  'No quantity tiers. Starting price applies.':
+    'পরিমাণভিত্তিক মূল্য নেই। প্রারম্ভিক মূল্য প্রযোজ্য।',
+  'Moderation decision': 'পর্যালোচনার সিদ্ধান্ত',
+  'Check the photos, product information and pricing, then record your decision.':
+    'ছবি, পণ্যের তথ্য ও মূল্য যাচাই করে আপনার সিদ্ধান্ত নথিভুক্ত করুন।',
+  'A review note is required for every decision.':
+    'প্রতিটি সিদ্ধান্তের জন্য পর্যালোচনার নোট প্রয়োজন।',
+  'Listing decision saved.': 'পণ্য পর্যালোচনার সিদ্ধান্ত সংরক্ষণ করা হয়েছে।',
   ...termsCopy,
   ...buyingCopy,
   ...buyerOrdersCopy,
@@ -223,14 +323,12 @@ export const banglaCopy: Record<string, string> = {
   'Recommended for wholesale': 'পাইকারির জন্য প্রস্তাবিত',
   'Direct bank transfer / BEFTN. Supplier verified bank routing details will be shown on your order page after delivery charges are confirmed.':
     'সরাসরি ব্যাংক ট্রান্সফার / BEFTN। ডেলিভারি চার্জ নিশ্চিত হওয়ার পর অর্ডারের পৃষ্ঠায় যাচাইকৃত ব্যাংক হিসাবের বিবরণ দেখা যাবে।',
-  '{count} separate supplier orders will be placed':
-    '{count}টি পৃথক সরবরাহকারী অর্ডার তৈরি হবে',
+  '{count} separate supplier orders will be placed': '{count}টি পৃথক সরবরাহকারী অর্ডার তৈরি হবে',
   'Verified Bangladeshi suppliers & trade licences':
     'যাচাইকৃত বাংলাদেশি প্রস্তুতকারক ও ট্রেড লাইসেন্স',
   'Approve delivery charges before final payment':
     'চূড়ান্ত পেমেন্টের আগে ডেলিভারি চার্জ নিশ্চিত করুন',
-  'Stock & tier prices reserved for 48 hours':
-    '৪৮ ঘণ্টার জন্য মজুত ও পাইকারি দর সংরক্ষিত',
+  'Stock & tier prices reserved for 48 hours': '৪৮ ঘণ্টার জন্য মজুত ও পাইকারি দর সংরক্ষিত',
   'Paikarii Escrow': 'পাইকারি এসক্রো',
   '100% Escrow Protection': '১০০% এসক্রো সুরক্ষা',
   'Pay into Paikarii official bank account. Funds are held safely in escrow and only released to the supplier after you receive and confirm your delivery.':
@@ -247,8 +345,7 @@ export const banglaCopy: Record<string, string> = {
   'Copy account number': 'হিসাব নম্বর কপি করুন',
   'Copy routing number': 'রাউটিং নম্বর কপি করুন',
   'Copy deposit reference': 'রেফারেন্স কপি করুন',
-  'How Paikarii Escrow Protects Your Money':
-    'পাইকারি এসক্রো যেভাবে আপনার অর্থ সুরক্ষিত রাখে',
+  'How Paikarii Escrow Protects Your Money': 'পাইকারি এসক্রো যেভাবে আপনার অর্থ সুরক্ষিত রাখে',
   'Transfer to Paikarii': 'পাইকারির অ্যাকাউন্টে জমা দিন',
   'Report Payment': 'পেমেন্ট তথ্য জানান',
   'Funds Held in Escrow': 'এসক্রোতে অর্থ সংরক্ষিত',
@@ -1407,6 +1504,11 @@ export const banglaCopy: Record<string, string> = {
   'Product not found': 'পণ্য পাওয়া যায়নি',
   'Product or keyword': 'পণ্য বা অনুসন্ধানের শব্দ',
   'Product saved and submitted for review.': 'পণ্য সংরক্ষিত ও পর্যালোচনার জন্য জমা হয়েছে।',
+  'Product added successfully.': 'পণ্য সফলভাবে যোগ করা হয়েছে।',
+  'Product updated successfully.': 'পণ্য সফলভাবে আপডেট করা হয়েছে।',
+  'Your listing is awaiting review. You can upload product photos below.':
+    'আপনার পণ্যটি পর্যালোচনার অপেক্ষায় রয়েছে। নিচে পণ্যের ছবি আপলোড করতে পারেন।',
+  'Saving product…': 'পণ্য সংরক্ষণ করা হচ্ছে…',
   Products: 'পণ্যসমূহ',
   'Profile image (JPEG, PNG or WebP; 2 MB)': 'প্রোফাইল ছবি (JPEG, PNG বা WebP; ২ MB)',
   'Profile updated.': 'প্রোফাইল হালনাগাদ হয়েছে।',

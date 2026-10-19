@@ -30,10 +30,18 @@ interface EscrowAppealRoomProps {
   buyer: boolean;
   seller: boolean;
   admin: boolean;
+  allowedActions?: readonly OrderAction[];
   onAction: (action: OrderAction, presetNote?: string) => void;
 }
 
-export function EscrowAppealRoom({ order, buyer, seller, admin, onAction }: EscrowAppealRoomProps) {
+export function EscrowAppealRoom({
+  order,
+  buyer,
+  seller,
+  admin,
+  allowedActions,
+  onAction,
+}: EscrowAppealRoomProps) {
   const tr = useT();
   const { locale } = useLocale();
 
@@ -104,7 +112,9 @@ export function EscrowAppealRoom({ order, buyer, seller, admin, onAction }: Escr
             <Scale size={24} />
           </div>
           <div>
-            <span className="appeal-eyebrow">{tr('PAIKARII ESCROW APPEAL ROOM')}</span>
+            <span className="appeal-eyebrow">
+              {tr(admin ? 'ORDER DISPUTE REVIEW' : 'PAIKARII ESCROW APPEAL ROOM')}
+            </span>
             <h2 id="escrow-appeal-title">{tr('Dispute Resolution Center')}</h2>
           </div>
         </div>
@@ -384,7 +394,9 @@ export function EscrowAppealRoom({ order, buyer, seller, admin, onAction }: Escr
           </div>
           <p className="admin-console-desc">
             {tr(
-              'Supervise evidence, request clarifying documentation from either party, or execute a binding financial resolution.',
+              admin
+                ? 'Review statements, record decisions and verify any external refund separately.'
+                : 'Supervise evidence, request clarifying documentation from either party, or execute a binding financial resolution.',
             )}
           </p>
 
@@ -392,27 +404,48 @@ export function EscrowAppealRoom({ order, buyer, seller, admin, onAction }: Escr
             <Button
               variant="outline"
               size="sm"
+              disabled={allowedActions && !allowedActions.includes('note')}
               onClick={() => onAction('note', '[PAIKARII SUPERVISOR DIRECTIVE]\n')}
             >
               <MessageSquare size={14} aria-hidden="true" />
               <span>{tr('Post Supervisor Directive')}</span>
             </Button>
 
-            <Button variant="outline" size="sm" onClick={() => onAction('resolve_cancel')}>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={allowedActions && !allowedActions.includes('resolve_cancel')}
+              onClick={() => onAction('resolve_cancel')}
+            >
               <span>{tr('Record buyer refund decision')}</span>
             </Button>
 
-            <Button variant="default" size="sm" onClick={() => onAction('resolve_complete')}>
+            <Button
+              variant="default"
+              size="sm"
+              disabled={allowedActions && !allowedActions.includes('resolve_complete')}
+              onClick={() => onAction('resolve_complete')}
+            >
               <span>{tr('Resolve in supplier favour')}</span>
             </Button>
 
             {['shipped', 'completed'].includes(dispute.previous_status) && !activeReturn && (
-              <Button variant="outline" size="sm" onClick={() => onAction('authorize_return')}>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={allowedActions && !allowedActions.includes('authorize_return')}
+                onClick={() => onAction('authorize_return')}
+              >
                 <span>{tr('Authorize Merchandise Return')}</span>
               </Button>
             )}
 
-            <Button variant="outline" size="sm" onClick={() => onAction('resolve_resume')}>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={allowedActions && !allowedActions.includes('resolve_resume')}
+              onClick={() => onAction('resolve_resume')}
+            >
               <span>{tr('Resume Fulfillment')}</span>
             </Button>
           </div>

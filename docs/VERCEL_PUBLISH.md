@@ -32,7 +32,7 @@ Preview robots disallow crawling; the catalog function also returns noindex in p
 
 ## Backend and authentication
 
-The existing linked cloud project already has migrations through **35**, including private chat images and the existing hosted Cron jobs. Importing the frontend repository does **not** reapply SQL or deploy Edge Functions. Do not reset the database or rerun project-specific owner bootstraps against a different project.
+The existing linked cloud project already has migrations through **36**, including optimized store pictures, private chat images and the existing hosted Cron jobs. Importing the frontend repository does **not** reapply SQL or deploy Edge Functions. Do not reset the database or rerun project-specific owner bootstraps against a different project.
 
 If using another hosted project, review the identity bootstrap migration and apply migrations through the Supabase CLI/SQL Editor as documented in [Cloud deployment](DEPLOYMENT.md). No Docker or local database is required. Required active Edge Functions:
 

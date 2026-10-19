@@ -34,7 +34,12 @@ export function safeRedirect(value: string | null) {
 export function validateUpload(
   file: File,
   bucket:
-    'product-images' | 'business-documents' | 'avatars' | 'request-attachments' | 'chat-images',
+    | 'product-images'
+    | 'business-documents'
+    | 'avatars'
+    | 'request-attachments'
+    | 'chat-images'
+    | 'store-images',
 ) {
   const types =
     bucket === 'business-documents' || bucket === 'request-attachments'
@@ -50,6 +55,8 @@ export function validateUpload(
           : 5;
   if (bucket === 'chat-images' && file.type !== 'image/webp')
     throw new Error('Chat images must be compressed WebP files.');
+  if (bucket === 'store-images' && (file.type !== 'image/webp' || file.size > 256 * 1024))
+    throw new Error('Store pictures must be optimized WebP images up to 256 KB.');
   if (!types.includes(file.type))
     throw new Error(
       'Unsupported file type. Use ' + types.map((x) => x.split('/')[1]).join(', ') + '.',

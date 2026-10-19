@@ -16,6 +16,8 @@ export async function orderFixture(
     failCheckoutOnce = false,
     returnStatus = '',
     keepExpiry = false,
+    reportedReference = '',
+    tracking = '',
   } = {},
 ) {
   await chatFixture(page, { role, locale });
@@ -99,7 +101,16 @@ export async function orderFixture(
         created_at: '2026-10-17T03:00:00Z',
       },
     ],
-    shipments: [],
+    shipments: tracking
+      ? [
+          {
+            id: '76000000-0000-4000-8000-000000000001',
+            carrier: 'Synthetic Courier',
+            tracking_number: tracking,
+            shipped_at: '2026-10-17T04:00:00Z',
+          },
+        ]
+      : [],
     returns: returnStatus
       ? [
           {
@@ -114,7 +125,17 @@ export async function orderFixture(
           },
         ]
       : [],
-    payments: [],
+    payments: reportedReference
+      ? [
+          {
+            id: '77000000-0000-4000-8000-000000000001',
+            kind: 'payment_report',
+            amount: 19000,
+            reference: reportedReference,
+            created_at: '2026-10-17T04:00:00Z',
+          },
+        ]
+      : [],
     disputes:
       status === 'disputed'
         ? [
@@ -320,5 +341,5 @@ export async function orderFixture(
     }
     await route.fulfill({ json: data });
   });
-  return calls;
+  return Object.assign(calls, { getOrder: () => order });
 }

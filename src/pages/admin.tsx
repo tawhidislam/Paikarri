@@ -26,14 +26,16 @@ export function ReviewProduct({
   return (
     <div className="review-controls">
       <Field label={tr('Review note')}>
-        <input
+        <textarea
+          rows={4}
           value={note}
           maxLength={2000}
           onChange={(e) => setNote(e.target.value)}
           placeholder={tr('Explain required changes or your decision\u2026')}
         />
       </Field>
-      <div>
+      <p className="review-note-help">{tr('A review note is required for every decision.')}</p>
+      <div className="review-decision-actions">
         {['approved', 'rejected', 'archived'].map((decision) => (
           <ActionDialog
             key={decision}
@@ -41,6 +43,7 @@ export function ReviewProduct({
               decision === 'approved' ? 'Approve' : decision === 'rejected' ? 'Reject' : 'Archive'
             }
             requireReason={false}
+            disabled={action.isPending}
             description={note || tr('Confirm this moderation decision.')}
             onConfirm={async () => {
               if (!note.trim()) throw new Error('Review note is required.');
@@ -49,7 +52,10 @@ export function ReviewProduct({
           />
         ))}
       </div>
-      <Notice error={action.error} />
+      <Notice
+        error={action.error}
+        success={action.isSuccess ? tr('Listing decision saved.') : undefined}
+      />
     </div>
   );
 }

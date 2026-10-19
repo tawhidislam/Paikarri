@@ -126,6 +126,7 @@ export type Database = {
           name: string
           name_bn: string
           owner_id: string
+          profile_image_path: string | null
           updated_at: string
           verification_application_id: string | null
           verified: boolean
@@ -142,6 +143,7 @@ export type Database = {
           name: string
           name_bn?: string
           owner_id: string
+          profile_image_path?: string | null
           updated_at?: string
           verification_application_id?: string | null
           verified?: boolean
@@ -158,6 +160,7 @@ export type Database = {
           name?: string
           name_bn?: string
           owner_id?: string
+          profile_image_path?: string | null
           updated_at?: string
           verification_application_id?: string | null
           verified?: boolean
@@ -3402,6 +3405,7 @@ export type Database = {
           name: string
           name_bn: string
           owner_id: string
+          profile_image_path: string | null
           updated_at: string
           verification_application_id: string | null
           verified: boolean
@@ -3515,6 +3519,10 @@ export type Database = {
         }
       }
       search_suggestions: { Args: { keyword: string }; Returns: Json }
+      set_store_picture: {
+        Args: { expected_path: string; new_path: string; target: string }
+        Returns: undefined
+      }
       shipping_preset_get: { Args: never; Returns: Json }
       shipping_preset_save: {
         Args: { expected_version: number; payload: Json; target: string }

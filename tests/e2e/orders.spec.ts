@@ -1,3 +1,4 @@
+import { adminOrderFixture } from '../helpers/admin-order-fixture';
 import { test, expect } from '@playwright/test';
 import { orderFixture, oid } from '../helpers/order-fixture';
 test('cart updates quantity using refreshed tier prices and removes products', async ({ page }) => {
@@ -174,14 +175,21 @@ test('buyer can open a dispute with an explanation', async ({ page }) => {
   expect(calls.find((c) => c.name === 'order_action')?.body.action).toBe('dispute');
 });
 test('orders use server search, filtering and pagination limits', async ({ page }) => {
-  const calls = await orderFixture(page, { role: 'super_admin' });
+  const { requests } = await adminOrderFixture(page);
   await page.goto('/admin/orders');
   await page.getByRole('searchbox', { name: 'Search orders' }).fill('Synthetic');
   await page.getByRole('button', { name: 'Search', exact: true }).click();
   await page.getByRole('combobox', { name: 'Status', exact: true }).selectOption('processing');
   await expect
-    .poll(() => calls.filter((c) => c.name === 'order_list').at(-1)?.body)
-    .toMatchObject({ search: 'Synthetic', state: 'processing', page: 1, page_size: 25 });
+    .poll(() => requests.filter((request) => request.method === 'GET').at(-1))
+    .toMatchObject({
+      filters: expect.arrayContaining([
+        expect.stringContaining('status.eq.processing'),
+        expect.stringContaining('Synthetic'),
+      ]),
+      offset: 0,
+      limit: 25,
+    });
   await expect(page.getByRole('link', { name: 'PK-000101' })).toBeVisible();
 });
 test('order errors offer a retry', async ({ page }) => {

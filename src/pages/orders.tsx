@@ -1,3 +1,4 @@
+import { AdminOrdersHub, AdminOrderCommand } from '@/pages/admin/order-management';
 import { ShippingCalculator } from '@/components/growth/shipping';
 import { OrderReceipt } from '@/components/order/receipt';
 import { z } from 'zod';
@@ -999,6 +1000,9 @@ function buyerOrderMessage(
   return 'This order is cancelled. Review its payment and refund details.';
 }
 export function OrdersPage({ admin = false }: { admin?: boolean }) {
+  return admin ? <AdminOrdersHub /> : <ParticipantOrdersPage />;
+}
+function ParticipantOrdersPage({ admin = false }: { admin?: boolean }) {
   const tr = useT();
   const { locale } = useLocale();
   const { session, role } = useAuth();
@@ -1888,6 +1892,42 @@ export function OrderDetailPage({ admin = false }: { admin?: boolean }) {
     'shipped',
     'completed',
   ];
+  if (admin)
+    return (
+      <AdminOrderCommand
+        order={o}
+        actions={actions}
+        actionLabels={actionLabels}
+        onAction={(next, preset) => {
+          if (actions.includes(next)) {
+            setAction(next);
+            setActionPresetNote(preset);
+          }
+        }}
+        dialog={
+          action && (
+            <OrderActionDialog
+              key={`${action}-${o.version}`}
+              order={o}
+              action={action}
+              presetNote={actionPresetNote}
+              onClose={() => {
+                setAction(null);
+                setActionPresetNote(undefined);
+              }}
+              onDone={(data) => {
+                cache.setQueryData(['order', session?.user.id, id], data);
+                void cache.invalidateQueries({ queryKey: ['orders'] });
+                void cache.invalidateQueries({ queryKey: ['cart'] });
+                void refreshInventory(cache);
+                setAction(null);
+                setActionPresetNote(undefined);
+              }}
+            />
+          )
+        }
+      />
+    );
   return (
     <div className={`orders-page order-detail ${buyer && !admin ? 'bo-page bo-detail' : ''}`}>
       <Link className="order-back" to={base}>

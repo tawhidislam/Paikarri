@@ -25,6 +25,7 @@ const categories: Category[] = [
   },
 ];
 const business: Business = {
+  profile_image_path: null,
   id: businessId,
   owner_id: userId,
   name: 'Meghna Packaging',

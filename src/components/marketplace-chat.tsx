@@ -28,7 +28,7 @@ export type ChatDraft = {
   image?: ChatImageDraft;
 };
 type Context = {
-  start: (business: string, product?: string) => void;
+  start: (business: string, product?: string, initialBody?: string) => void;
   starting: boolean;
   connection: string;
   drafts: Map<string, ChatDraft>;
@@ -70,12 +70,12 @@ function ChatSession({ children }: { children: ReactNode }) {
     void cache.invalidateQueries({ queryKey: ['chat-new'] });
   };
   const start = useMutation({
-    mutationFn: ({ business, product }: { business: string; product?: string }) =>
+    mutationFn: ({ business, product }: { business: string; product?: string; initialBody?: string }) =>
       startChat(business, product),
-    onSuccess: (result) => {
+    onSuccess: (result, variables) => {
       const previous = drafts.get(result.thread.id);
       drafts.set(result.thread.id, {
-        body: previous?.body ?? '',
+        body: previous?.body || variables.initialBody || '',
         product: result.product,
         nonce:
           previous && previous.product?.id === result.product?.id ? previous.nonce : randomUUID(),
@@ -85,7 +85,7 @@ function ChatSession({ children }: { children: ReactNode }) {
       refresh();
     },
   });
-  const begin = (business: string, product?: string) => {
+  const begin = (business: string, product?: string, initialBody?: string) => {
     opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     if (!session) {
       const target = product ? `/products/${product}` : `/suppliers/${business}`;
@@ -97,7 +97,7 @@ function ChatSession({ children }: { children: ReactNode }) {
       return;
     }
     if (role !== 'buyer') return;
-    start.mutate({ business, product });
+    start.mutate({ business, product, initialBody });
   };
   const mutate = start.mutate;
   useEffect(() => {
