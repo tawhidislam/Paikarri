@@ -233,7 +233,7 @@ export function Overview() {
                 'products',
                 'quotation_requests',
                 'conversations',
-                'supplier_verifications',
+                'verification_applications',
               ] as const)
             : (['favorites', 'saved_suppliers', 'quotation_requests', 'conversations'] as const);
       const own =

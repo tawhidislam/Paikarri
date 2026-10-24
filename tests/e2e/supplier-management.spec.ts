@@ -499,7 +499,7 @@ test('super admin grants and revokes verified badge with audit reason', async ({
   await expect(grantBtn).toBeVisible();
 
   await grantBtn.click();
-  const dialog = page.locator('.sm-badge-dialog');
+  const dialog = page.getByRole('dialog', { name: 'Grant verified badge', exact: true });
   await expect(dialog).toBeVisible();
 
   const submitBtn = dialog.getByRole('button', { name: 'Grant verified badge' });
@@ -515,4 +515,15 @@ test('super admin grants and revokes verified badge with audit reason', async ({
   expect(rpcCall).toBeDefined();
   expect(rpcCall?.body.grant_badge).toBe(true);
   expect(rpcCall?.body.reason).toContain('Verified after on-site audit');
+  await page.getByRole('button', { name: 'Revoke verified badge', exact: true }).first().click();
+  const revoke = page.getByRole('dialog', { name: 'Revoke verified badge', exact: true });
+  await expect(
+    revoke.getByRole('button', { name: 'Revoke verified badge', exact: true }),
+  ).toBeDisabled();
+  await revoke.locator('textarea').fill('Verification revoked after a synthetic follow-up review.');
+  await revoke.getByRole('button', { name: 'Revoke verified badge', exact: true }).click();
+  await expect(revoke).not.toBeVisible();
+  expect(
+    calls.filter((c) => c.name === 'admin_set_supplier_verified').map((c) => c.body.grant_badge),
+  ).toEqual([true, false]);
 });

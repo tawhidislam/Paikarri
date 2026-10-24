@@ -16,7 +16,10 @@
     "seed": "node scripts/seed.mjs",
     "format": "prettier --write src tests scripts docs",
     "db:types": "node scripts/generate-types.mjs",
-    "check:deploy": "npm run typecheck && npm run lint && npm test && npm run build"
+    "check:deploy": "npm run typecheck && npm run lint && npm test && npm run build",
+    "api:generate": "node --experimental-strip-types scripts/generate-supplier-api.mjs",
+    "api:check": "node --experimental-strip-types scripts/generate-supplier-api.mjs --check",
+    "api:edge:check": "npx deno check --config supabase/functions/supplier-api/deno.json supabase/functions/supplier-api/index.ts"
   },
   "dependencies": {
     "@fontsource-variable/dm-sans": "5.3.0",
@@ -48,6 +51,7 @@
     "eslint-plugin-react-hooks": "7.1.1",
     "globals": "17.13.0",
     "prettier": "3.9.10",
+    "supabase": "2.121.0",
     "tailwindcss": "4.3.3",
     "typescript": "5.9.3",
     "typescript-eslint": "8.71.2",

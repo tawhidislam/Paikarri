@@ -420,3 +420,6 @@ verify_jwt = false
 
 [functions.chat-image]
 verify_jwt = false
+
+[functions.supplier-api]
+verify_jwt = false

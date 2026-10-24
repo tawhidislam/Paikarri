@@ -32,20 +32,7 @@ export async function operationsList<T>(
   if (error) throw error;
   return z.object({ total: z.number(), rows: z.array(schema) }).parse(data);
 }
-export const notificationSchema = z.object({
-  id: z.string(),
-  recipient_id: z.string(),
-  kind: z.string(),
-  title_en: z.string(),
-  title_bn: z.string(),
-  body_en: z.string(),
-  body_bn: z.string(),
-  href: z.string().regex(/^\/(dashboard|admin)(\/|$)/),
-  entity_id: z.string().nullable(),
-  actor_id: z.string().nullable(),
-  created_at: z.string(),
-  read_at: z.string().nullable(),
-});
+export { notificationSchema } from '../../supabase/functions/_shared/supplier-api/notification-schema';
 export const useUnreadNotifications = () => {
   const { session } = useAuth();
   return useQuery({

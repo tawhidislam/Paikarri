@@ -1,3 +1,4 @@
+import { LocalPagination } from '@/components/supplier-warning';
 import { StorePictureEditor } from '@/components/store-picture';
 import { ShippingSettings } from '@/components/growth/shipping';
 import { SupplierOptions } from '@/components/product/supplier-options';
@@ -95,6 +96,10 @@ export function BusinessPage() {
           <Notice error={own.error} />
           {own.isLoading ? (
             <State title={tr('Loading business…')} />
+          ) : own.isError ? (
+            <Button variant="outline" onClick={() => void own.refetch()}>
+              {tr('Try again')}
+            </Button>
           ) : (
             <>
               {own.data && <StorePictureEditor business={own.data} />}
@@ -295,23 +300,37 @@ export function SupplierProducts() {
   const tr = useT();
   const own = useBusiness();
   const cache = useQueryClient();
+  const [page, setPage] = useState(1);
   useTitle('Manage products');
   const products = useQuery({
-    queryKey: ['own-products', own.data?.id],
+    queryKey: ['own-products', own.data?.id, page],
     enabled: !!own.data,
     queryFn: async () => {
-      const { data, error } = await db()
+      const { data, error, count } = await db()
         .from('products')
-        .select('*')
+        .select('*', { count: 'exact' })
         .eq('business_id', own.data!.id)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .order('id', { ascending: false })
+        .range((page - 1) * 25, page * 25 - 1);
       if (error) throw error;
-      const notes = await db().from('product_moderation_notes').select('*');
+      const notes = data.length
+        ? await db()
+            .from('product_moderation_notes')
+            .select('*')
+            .in(
+              'product_id',
+              data.map((p) => p.id),
+            )
+        : { data: [], error: null };
       if (notes.error) throw notes.error;
-      return data.map((p) => ({
-        ...p,
-        moderation_note: notes.data.find((n) => n.product_id === p.id)?.note ?? '',
-      }));
+      return {
+        total: count ?? data.length,
+        rows: data.map((p) => ({
+          ...p,
+          moderation_note: notes.data.find((n) => n.product_id === p.id)?.note ?? '',
+        })),
+      };
     },
   });
   const archive = useMutation({
@@ -337,7 +356,7 @@ export function SupplierProducts() {
         />
       ) : products.isLoading ? (
         <State title={tr('Loading products…')} />
-      ) : products.data?.length ? (
+      ) : products.data?.rows.length ? (
         <div className="table-wrap">
           <table>
             <thead>
@@ -349,7 +368,7 @@ export function SupplierProducts() {
               </tr>
             </thead>
             <tbody>
-              {products.data.map((p) => (
+              {products.data.rows.map((p) => (
                 <tr key={p.id}>
                   <td>
                     <strong>{p.name}</strong>
@@ -410,6 +429,9 @@ export function SupplierProducts() {
             </Button>
           }
         />
+      )}
+      {products.data && (
+        <LocalPagination page={page} setPage={setPage} total={products.data.total} />
       )}
     </>
   );

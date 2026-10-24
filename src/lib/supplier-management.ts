@@ -30,29 +30,11 @@ export const noteSchema = z.object({
   archived_at: z.string().nullable(),
   archive_reason: z.string(),
 });
-export const warningSchema = z.object({
-  id: z.uuid(),
-  business_id: z.uuid(),
-  title: z.string(),
-  message: z.string(),
-  corrective_action: z.string(),
-  severity: z.enum(['notice', 'warning', 'final_warning']),
-  due_on: z.iso.date(),
-  status: z.enum(['open', 'response_submitted', 'resolved', 'dismissed']),
-  version: z.number(),
-  created_at: z.string(),
-  overdue: z.boolean(),
-  events: z.array(
-    z.object({
-      id: z.uuid(),
-      event: z.string(),
-      body: z.string(),
-      actor_id: z.uuid(),
-      created_at: z.string(),
-    }),
-  ),
-});
-export type SupplierWarning = z.infer<typeof warningSchema>;
+import {
+  warningSchema,
+  type SupplierWarning,
+} from '../../supabase/functions/_shared/supplier-api/warning-schema';
+export { warningSchema, type SupplierWarning };
 export const renewalSchema = z.object({
   id: z.uuid(),
   name: z.string(),
@@ -183,11 +165,31 @@ export const verifiedBadgeInputSchema = z.object({
 });
 export type VerifiedBadgeInput = z.infer<typeof verifiedBadgeInputSchema>;
 export const verificationMethods = [
-  { id: 'direct_admin_grant', labelEn: 'Direct Super Admin Verification', labelBn: 'সুপার অ্যাডমিন সরাসরি ভেরিফিকেশন' },
-  { id: 'offline_license_bank', labelEn: 'Offline Trade License & Bank Review', labelBn: 'ট্রেড লাইসেন্স ও ব্যাংক অফলাইন যাচাই' },
-  { id: 'factory_audit', labelEn: 'On-Site Factory & Capacity Audit', labelBn: 'অন-সাইট কারখানা ও সক্ষমতা নিরীক্ষা' },
-  { id: 'enterprise_partner', labelEn: 'Enterprise Strategic Partner', labelBn: 'এন্টারপ্রাইজ কৌশলগত অংশীদার' },
-  { id: 'manual_exception', labelEn: 'Executive Exception Approval', labelBn: 'বিশেষ নির্বাহী অনুমোদন' },
+  {
+    id: 'direct_admin_grant',
+    labelEn: 'Direct Super Admin Verification',
+    labelBn: 'সুপার অ্যাডমিন সরাসরি ভেরিফিকেশন',
+  },
+  {
+    id: 'offline_license_bank',
+    labelEn: 'Offline Trade License & Bank Review',
+    labelBn: 'ট্রেড লাইসেন্স ও ব্যাংক অফলাইন যাচাই',
+  },
+  {
+    id: 'factory_audit',
+    labelEn: 'On-Site Factory & Capacity Audit',
+    labelBn: 'অন-সাইট কারখানা ও সক্ষমতা নিরীক্ষা',
+  },
+  {
+    id: 'enterprise_partner',
+    labelEn: 'Enterprise Strategic Partner',
+    labelBn: 'এন্টারপ্রাইজ কৌশলগত অংশীদার',
+  },
+  {
+    id: 'manual_exception',
+    labelEn: 'Executive Exception Approval',
+    labelBn: 'বিশেষ নির্বাহী অনুমোদন',
+  },
 ] as const;
 export async function adminSetSupplierVerified(target: string, payload: VerifiedBadgeInput) {
   const value = verifiedBadgeInputSchema.parse(payload);

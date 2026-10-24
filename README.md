@@ -104,3 +104,7 @@ See [Platform improvements](docs/PLATFORM_IMPROVEMENTS.md) for tender bidding, q
 Import [tawhidislam/Paikarri](https://github.com/tawhidislam/Paikarri) into Vercel. Use **Vite**, **Node 22.x**, install `npm ci`, build `npm run build`, output `dist`. Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` for each deployment environment. `VITE_SITE_URL` is optional: set your real HTTPS custom domain in Production, or leave it unset to use Vercel automatic URLs. Never copy localhost into a Vercel environment. No Supabase secret/service-role key is needed in Vercel.
 
 See [Vercel publishing](docs/VERCEL_PUBLISH.md) for exact settings, Supabase Auth redirects, preview isolation, backend prerequisites and launch checks.
+
+## Supplier mobile API
+
+The versioned supplier REST API, generated mobile client, private upload flow and cloud acceptance instructions are documented in [Supplier mobile API](docs/SUPPLIER_MOBILE_API.md). The implementation is local; hosted migration and deployment acceptance are tracked in that guide.

@@ -1,3 +1,4 @@
+import { LocalPagination } from '@/components/supplier-warning';
 import { useT } from '@/lib/i18n';
 import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -106,27 +107,41 @@ export function Quotations() {
   const { session, role } = useAuth();
   const cache = useQueryClient();
   useTitle('Quotations');
+  const [page, setPage] = useState(1);
   const [reply, setReply] = useState<string>();
   const [price, setPrice] = useState('');
   const [message, setMessage] = useState('');
   const list = useQuery({
-    queryKey: ['quotations', session!.user.id],
+    queryKey: ['quotations', session!.user.id, page],
     queryFn: async () => {
-      const { data, error } = await db()
+      const { data, error, count } = await db()
         .from('quotation_requests')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .select('*', { count: 'exact' })
+        .order('created_at', { ascending: false })
+        .order('id', { ascending: false })
+        .range((page - 1) * 25, page * 25 - 1);
       if (error) throw error;
       const [p, r] = await Promise.all([
         participantContext(),
-        db().from('quotation_responses').select('*'),
+        data.length
+          ? db()
+              .from('quotation_responses')
+              .select('*')
+              .in(
+                'request_id',
+                data.map((q) => q.id),
+              )
+          : Promise.resolve({ data: [], error: null }),
       ]);
       if (r.error) throw r.error;
-      return data.map((q) => ({
-        ...q,
-        product: p.products.find((p) => p.id === q.product_id),
-        response: r.data.find((r) => r.request_id === q.id),
-      }));
+      return {
+        total: count ?? data.length,
+        rows: data.map((q) => ({
+          ...q,
+          product: p.products.find((p) => p.id === q.product_id),
+          response: r.data.find((r) => r.request_id === q.id),
+        })),
+      };
     },
   });
   const send = useMutation({
@@ -164,8 +179,8 @@ export function Quotations() {
       <Notice error={list.error ?? send.error} />
       {list.isLoading ? (
         <State title={tr('Loading quotations…')} />
-      ) : list.data?.length ? (
-        list.data.map((q) => (
+      ) : list.data?.rows.length ? (
+        list.data.rows.map((q) => (
           <article className="panel quote-card" key={q.id}>
             <div className="quote-card-header">
               <div>
@@ -244,6 +259,7 @@ export function Quotations() {
           action={role === 'buyer' && <Link to="/products">{tr('Explore products')} ↗</Link>}
         />
       )}
+      {list.data && <LocalPagination page={page} setPage={setPage} total={list.data.total} />}
     </>
   );
 }
